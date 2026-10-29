@@ -538,7 +538,11 @@
         mapel: "Matematika",
         waliKelas: "V-A",
       },
-      kepsek: { inisial: "KS", nama: "Drs. H. Ahmad Faisal", peran: "Kepala Sekolah" },
+      orangtua: {
+        inisial: "SR",
+        nama: "Siti Rahmawati",
+        peran: "Orang Tua",
+      },
     },
     hariIni: HARI_INI,
     hariIniLabel: isoLabel(HARI_INI),

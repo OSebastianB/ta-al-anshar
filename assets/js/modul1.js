@@ -24,11 +24,16 @@
     return ui().scopeGuru ? ui().scopeGuru.waliKelas : "V-A";
   }
 
+  function inScopeKehadiran(k) {
+    if (ui().inScopeKehadiran) return ui().inScopeKehadiran(k);
+    if (peran() === "guru") return k.kelas === scopeKelasGuru();
+    return true;
+  }
+
   function hariIniRows() {
     return D.kehadiran.filter(function (k) {
       if (k.tanggal !== D.hariIni) return false;
-      if (peran() === "guru") return k.kelas === scopeKelasGuru();
-      return true;
+      return inScopeKehadiran(k);
     });
   }
 
@@ -39,7 +44,7 @@
     var absen = rows.length - hadir - telat;
     var siswaHitung = peran() === "guru" ? D.siswa.filter(function (s) { return s.kelas === scopeKelasGuru(); }).length : D.siswa.length;
     var items = [
-      [peran() === "kepsek" ? "Siswa terpantau" : "Siswa aktif", siswaHitung, "bi-people", "navy", peran() === "guru" ? "kelas wali " + scopeKelasGuru() : "data contoh"],
+      ["Siswa aktif", siswaHitung, "bi-people", "navy", peran() === "guru" ? "kelas wali " + scopeKelasGuru() : "data contoh"],
       ["Hadir hari ini", hadir, "bi-person-check", "teal", D.hariIniLabel],
       ["Terlambat", telat, "bi-clock", "amber", D.hariIniLabel],
       ["Tidak hadir", absen, "bi-person-x", "rose", "izin, sakit, alpa"],
@@ -90,8 +95,12 @@
     var kelas = document.getElementById("hadirKelas").value;
     var q = document.getElementById("hadirCari").value.trim().toLowerCase();
     return D.kehadiran.filter(function (k) {
-      var scopeOk = peran() !== "guru" || k.kelas === scopeKelasGuru();
-      return scopeOk && (!tgl || k.tanggal === tgl) && (!kelas || k.kelas === kelas) && (!q || k.nama.toLowerCase().indexOf(q) >= 0);
+      return (
+        inScopeKehadiran(k) &&
+        (!tgl || k.tanggal === tgl) &&
+        (!kelas || k.kelas === kelas) &&
+        (!q || k.nama.toLowerCase().indexOf(q) >= 0)
+      );
     });
   }
 
@@ -164,8 +173,14 @@
     var kelas = document.getElementById("rekapAbsenKelas").value;
     var dari = document.getElementById("rekapAbsenDari").value;
     var sampai = document.getElementById("rekapAbsenSampai").value;
+    if (peran() === "guru") kelas = scopeKelasGuru();
     var rec = D.kehadiran.filter(function (k) {
-      return (!kelas || k.kelas === kelas) && (!dari || k.tanggal >= dari) && (!sampai || k.tanggal <= sampai);
+      return (
+        inScopeKehadiran(k) &&
+        (!kelas || k.kelas === kelas) &&
+        (!dari || k.tanggal >= dari) &&
+        (!sampai || k.tanggal <= sampai)
+      );
     });
     var count = { Hadir: 0, Terlambat: 0, Izin: 0, Sakit: 0, Alpa: 0 };
     rec.forEach(function (k) { count[k.status] += 1; });
@@ -181,7 +196,10 @@
       })
       .join("");
 
-    var daftar = D.siswa.filter(function (s) { return !kelas || s.kelas === kelas; });
+    var daftar = D.siswa.filter(function (s) {
+      var scopeOk = peran() !== "guru" || s.kelas === scopeKelasGuru();
+      return scopeOk && (!kelas || s.kelas === kelas);
+    });
     document.getElementById("rekapAbsenBody").innerHTML = daftar
       .map(function (s) {
         var mine = rec.filter(function (k) { return k.nis === s.nis; });
@@ -402,35 +420,126 @@
   }
 
   function renderPortal() {
-    var nis = D.orangTua.anakNis[0];
-    var anak = D.siswa.filter(function (s) { return s.nis === nis; })[0];
-    var rec = D.kehadiran.filter(function (k) { return k.nis === nis; }).slice().sort(function (a, b) {
-      return a.tanggal < b.tanggal ? 1 : -1;
-    });
+    var nisList = ui().anakNisOrangtua ? ui().anakNisOrangtua() : D.orangTua.anakNis;
+    var anak =
+      (ui().siswaOrangtua && ui().siswaOrangtua()[0]) ||
+      D.siswa.filter(function (s) {
+        return nisList.indexOf(s.nis) >= 0;
+      })[0];
+    if (!anak) {
+      document.getElementById("portalSub").textContent = "Tidak ada anak tertaut pada akun demo orang tua.";
+      return;
+    }
+    var rec = D.kehadiran
+      .filter(function (k) {
+        return nisList.indexOf(k.nis) >= 0;
+      })
+      .slice()
+      .sort(function (a, b) {
+        return a.tanggal < b.tanggal ? 1 : -1;
+      });
     var st = hitungStatus(rec);
     var hadir = st.Hadir + st.Terlambat;
     var persen = rec.length ? Math.round((hadir / rec.length) * 1000) / 10 : 0;
-    var hari = rec.filter(function (k) { return k.tanggal === D.hariIni; })[0];
+    var hari = rec.filter(function (k) {
+      return k.tanggal === D.hariIni;
+    })[0];
+    var tugasAnak = D.pengumpulan.filter(function (p) {
+      return nisList.indexOf(p.nis) >= 0;
+    });
+    var belumTugas = tugasAnak.filter(function (p) {
+      return p.status === "Belum Dikumpulkan";
+    }).length;
     document.getElementById("portalSub").textContent =
-      D.orangTua.hubungan + " dari " + anak.nama + " · kelas " + anak.kelas + " · NIS " + anak.nis + ". Hanya baca.";
+      D.orangTua.hubungan +
+      " dari " +
+      anak.nama +
+      " · kelas " +
+      anak.kelas +
+      " · NIS " +
+      anak.nis +
+      ". Hanya baca — data anak tertaut saja.";
     var items = [
-      ["Kehadiran", persen + "%", "bi-percent", "teal", hadir + " dari " + rec.length + " hari"],
+      ["Kehadiran", String(persen).replace(".", ",") + "%", "bi-percent", "teal", hadir + " dari " + rec.length + " hari"],
       ["Hari ini", hari ? hari.status : "—", "bi-calendar-check", hari && hari.status === "Hadir" ? "teal" : "amber", hari ? hari.waktu : ""],
-      ["Terlambat", st.Terlambat, "bi-clock", "amber", "Oktober 2026"],
-      ["Alpa", st.Alpa, "bi-person-x", "rose", "tanpa keterangan"],
+      ["Rata-rata nilai", String(anak.akhir).replace(".", ","), "bi-bar-chart", "blue", "seluruh mapel"],
+      ["Tugas belum", belumTugas, "bi-journal-x", "amber", "dari " + tugasAnak.length + " catatan"],
     ];
     document.getElementById("portalKpi").innerHTML = items
       .map(function (it) {
         return (
-          '<div class="kpi-card"><div class="kpi-icon ' + it[3] + '"><i class="bi ' + it[2] +
-          '"></i></div><div><div class="kpi-label">' + it[0] + '</div><div class="kpi-value">' + it[1] +
-          '</div><div class="kpi-hint">' + it[4] + "</div></div></div>"
+          '<div class="kpi-card"><div class="kpi-icon ' +
+          it[3] +
+          '"><i class="bi ' +
+          it[2] +
+          '"></i></div><div><div class="kpi-label">' +
+          it[0] +
+          '</div><div class="kpi-value">' +
+          it[1] +
+          '</div><div class="kpi-hint">' +
+          it[4] +
+          "</div></div></div>"
         );
       })
       .join("");
-    document.getElementById("portalBody").innerHTML = rec.map(function (k) {
-      return "<tr><td>" + k.tanggalLabel + "</td><td>" + k.waktu + "</td><td>" + statusHadir(k.status) + "</td><td>" + k.keterangan + "</td></tr>";
-    }).join("");
+    document.getElementById("portalBody").innerHTML = rec
+      .map(function (k) {
+        return (
+          "<tr><td>" +
+          k.tanggalLabel +
+          "</td><td>" +
+          k.waktu +
+          "</td><td>" +
+          statusHadir(k.status) +
+          "</td><td>" +
+          k.keterangan +
+          "</td></tr>"
+        );
+      })
+      .join("");
+    var nilaiBody = document.getElementById("portalNilaiBody");
+    if (nilaiBody) {
+      nilaiBody.innerHTML = D.mapel
+        .map(function (m) {
+          var n = anak.nilaiMapel[m];
+          return (
+            "<tr><td class=\"name-cell\">" +
+            m +
+            "</td><td>" +
+            n.tugas +
+            "</td><td>" +
+            n.kuis +
+            "</td><td>" +
+            n.ujian +
+            "</td><td class=\"name-cell\">" +
+            n.akhir +
+            "</td><td>" +
+            ui().trenHtml(n.tren) +
+            "</td></tr>"
+          );
+        })
+        .join("");
+    }
+    var tugasBody = document.getElementById("portalTugasBody");
+    if (tugasBody) {
+      tugasBody.innerHTML = tugasAnak.length
+        ? tugasAnak
+            .map(function (p) {
+              return (
+                "<tr><td class=\"name-cell\">" +
+                p.tugas +
+                "</td><td>" +
+                p.mapel +
+                "</td><td>" +
+                ui().statusKumpulPill(p.status) +
+                "</td><td>" +
+                (p.nilai === null ? "—" : p.nilai) +
+                "</td></tr>"
+              );
+            })
+            .join("")
+        : ui().emptyRow(4, "Belum ada data pengumpulan untuk anak tertaut.");
+    }
   }
 
   function onShow(page) {

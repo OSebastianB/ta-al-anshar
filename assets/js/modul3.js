@@ -20,17 +20,41 @@
     D.siswaDipilih = id;
   }
 
+  function perhatianScoped() {
+    if (ui().getSiswaPerhatianScoped) return ui().getSiswaPerhatianScoped();
+    return D.siswaPerhatian;
+  }
+
+  function siswaScoped() {
+    return D.siswa.filter(function (s) {
+      return ui().inScopeSiswa ? ui().inScopeSiswa(s) : true;
+    });
+  }
+
   function siswaAktif() {
-    return D.siswa.filter(function (s) { return s.id === D.siswaDipilih; })[0] || D.siswaPerhatian[0] || D.siswa[0];
+    var s = D.siswa.filter(function (x) {
+      return x.id === D.siswaDipilih;
+    })[0];
+    if (s && ui().inScopeSiswa && !ui().inScopeSiswa(s)) s = null;
+    return s || perhatianScoped()[0] || siswaScoped()[0] || D.siswa[0];
   }
 
   function renderDashboard() {
-    var k = D.kpiAnalisis;
+    var rows = perhatianScoped();
+    var trenMenurun = rows.filter(function (s) {
+      return s.perubahan < 0;
+    }).length;
+    var hadirRendah = rows.filter(function (s) {
+      return s.persenHadir < D.ambang.hadir;
+    }).length;
+    var tugasKurang = rows.filter(function (s) {
+      return s.tugasBelum >= D.ambang.tugas;
+    }).length;
     var items = [
-      ["Perlu ditinjau guru", k.perluDitinjau, "bi-person-exclamation", "navy", "satu atau lebih kriteria"],
-      ["Tren nilai menurun", k.trenMenurun, "bi-graph-down-arrow", "amber", "turun mencapai ambang"],
-      ["Kehadiran rendah", k.hadirRendah, "bi-person-x", "rose", "di bawah ambang kehadiran"],
-      ["Tugas belum lengkap", k.tugasKurang, "bi-journal-x", "blue", "mencapai ambang tugas"],
+      ["Perlu ditinjau guru", rows.length, "bi-person-exclamation", "navy", "satu atau lebih kriteria"],
+      ["Tren nilai menurun", trenMenurun, "bi-graph-down-arrow", "amber", "turun mencapai ambang"],
+      ["Kehadiran rendah", hadirRendah, "bi-person-x", "rose", "di bawah ambang kehadiran"],
+      ["Tugas belum lengkap", tugasKurang, "bi-journal-x", "blue", "mencapai ambang tugas"],
     ];
     document.getElementById("analisisDashKpi").innerHTML = items
       .map(function (it) {
@@ -41,22 +65,30 @@
         );
       })
       .join("");
-    document.getElementById("analisisDashBody").innerHTML = D.siswaPerhatian
-      .map(function (s) {
-        return (
-          "<tr><td class=\"name-cell\">" + s.namaPendek + "</td><td>" + s.kelas + "</td><td>" + s.rataRata +
-          "</td><td>" + String(s.persenHadir).replace(".", ",") + "%</td><td>" + s.tugasBelum +
-          "</td><td>" + chips(s.alasanList) +
-          "</td><td><button class=\"btn btn-sm btn-outline-secondary\" type=\"button\" data-aksi=\"detail-siswa\" data-id=\"" +
-          s.id + "\">Lihat Detail</button></td></tr>"
-        );
-      })
-      .join("");
+    document.getElementById("analisisDashBody").innerHTML = rows.length
+      ? rows
+          .map(function (s) {
+            return (
+              "<tr><td class=\"name-cell\">" + s.namaPendek + "</td><td>" + s.kelas + "</td><td>" + s.rataRata +
+              "</td><td>" + String(s.persenHadir).replace(".", ",") + "%</td><td>" + s.tugasBelum +
+              "</td><td>" + chips(s.alasanList) +
+              "</td><td><button class=\"btn btn-sm btn-outline-secondary\" type=\"button\" data-aksi=\"detail-siswa\" data-id=\"" +
+              s.id + "\">Lihat Detail</button></td></tr>"
+            );
+          })
+          .join("")
+      : ui().emptyRow(7, "Tidak ada siswa yang perlu ditinjau pada cakupan role ini.");
   }
 
   function renderPerkembangan() {
     var kelas = document.getElementById("perkKelas").value || "V-A";
     var mapel = document.getElementById("perkMapel").value || "Matematika";
+    if (ui().getPeran && ui().getPeran() === "guru" && ui().scopeGuru) {
+      kelas = ui().scopeGuru.waliKelas;
+      mapel = ui().scopeGuru.mapel;
+      document.getElementById("perkKelas").value = kelas;
+      document.getElementById("perkMapel").value = mapel;
+    }
     var periode = document.getElementById("perkPeriode").value;
     D.ui.kelasPerk = kelas;
     D.ui.mapelPerk = mapel;
@@ -99,8 +131,10 @@
       hadir: document.getElementById("ambangHadir").value,
       tugas: document.getElementById("ambangTugas").value,
     });
-    var rows = D.siswaPerhatian;
-    document.getElementById("peringatanCount").textContent = rows.length + " siswa perlu ditinjau guru pada ambang saat ini.";
+    var rows = perhatianScoped();
+    document.getElementById("peringatanCount").textContent =
+      rows.length + " siswa perlu ditinjau guru pada ambang saat ini" +
+      (ui().getPeran && ui().getPeran() === "guru" ? " (cakupan kelas wali)." : ".");
     document.getElementById("peringatanBody").innerHTML = rows.length
       ? rows
           .map(function (s) {
@@ -113,7 +147,7 @@
             );
           })
           .join("")
-      : ui().emptyRow(8, "Tidak ada siswa yang memenuhi ambang ini.");
+      : ui().emptyRow(8, "Tidak ada siswa yang memenuhi ambang ini pada cakupan role.");
     if (document.getElementById("page-analisis-dashboard").classList.contains("active")) renderDashboard();
   }
 
@@ -153,6 +187,23 @@
     }
   }
 
+  function refreshScope() {
+    if (!D) return;
+    var list = siswaScoped();
+    var pilihEl = document.getElementById("detailPilih");
+    if (pilihEl) {
+      pilihEl.innerHTML = list
+        .map(function (s) {
+          return '<option value="' + s.id + '">' + s.nama + " · " + s.kelas + "</option>";
+        })
+        .join("");
+      if (!list.some(function (s) { return s.id === D.siswaDipilih; })) {
+        D.siswaDipilih = (list[0] || D.siswa[0]).id;
+      }
+      pilihEl.value = D.siswaDipilih;
+    }
+  }
+
   function init() {
     D = window.APP_DATA;
     D.ui = D.ui || {};
@@ -162,18 +213,15 @@
     ui().fillSelect(document.getElementById("perkMapel"), D.mapel, "Pilih mapel");
     document.getElementById("perkMapel").value = "Matematika";
     ui().fillSelect(document.getElementById("perkPeriode"), D.periode, "Seluruh periode");
-    var pilih = document.getElementById("detailPilih");
-    pilih.innerHTML = D.siswa
-      .map(function (s) { return '<option value="' + s.id + '">' + s.nama + " · " + s.kelas + "</option>"; })
-      .join("");
+    refreshScope();
     ["ambangNilai", "ambangTurun", "ambangHadir", "ambangTugas"].forEach(function (id) {
       document.getElementById(id).addEventListener("input", renderPeringatan);
     });
     ["perkKelas", "perkMapel", "perkPeriode"].forEach(function (id) {
       document.getElementById(id).addEventListener("change", renderPerkembangan);
     });
-    pilih.addEventListener("change", function () {
-      pilihId(pilih.value);
+    document.getElementById("detailPilih").addEventListener("change", function () {
+      pilihId(document.getElementById("detailPilih").value);
     });
     document.getElementById("btnKembaliDetail").addEventListener("click", function () {
       window.UI.showPage("peringatan");
@@ -190,6 +238,13 @@
     document.body.addEventListener("click", function (e) {
       var btn = e.target.closest("[data-aksi='detail-siswa']");
       if (!btn) return;
+      var target = D.siswa.filter(function (s) {
+        return String(s.id) === String(btn.dataset.id);
+      })[0];
+      if (target && ui().inScopeSiswa && !ui().inScopeSiswa(target)) {
+        ui().showToast("Mode Demo: detail siswa di luar cakupan role tidak tersedia.");
+        return;
+      }
       pilih(btn.dataset.id);
       window.UI.showPage("detail-siswa");
     });
@@ -204,6 +259,7 @@
 
   function onShow(page) {
     if (!D) return;
+    refreshScope();
     if (page === "analisis-dashboard") renderDashboard();
     if (page === "perkembangan") renderPerkembangan();
     if (page === "peringatan") renderPeringatan();
@@ -211,5 +267,5 @@
   }
 
   document.addEventListener("DOMContentLoaded", init);
-  window.Modul3 = { onShow: onShow, pilih: pilih };
+  window.Modul3 = { onShow: onShow, pilih: pilih, refreshScope: refreshScope };
 })();

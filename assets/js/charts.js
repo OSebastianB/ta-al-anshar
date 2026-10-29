@@ -95,8 +95,18 @@
   }
 
   function createDashboardCharts(data) {
-    const tren = data.trenNilai;
+    var tren =
+      global.UI && UI.getTrenNilai ? UI.getTrenNilai() : data.trenNilai;
     const palette = [COLORS.accent, COLORS.teal, COLORS.amber];
+    var yMin = 76;
+    var yMax = 86;
+    if (tren.series && tren.series.length === 1) {
+      var flat = tren.series[0].data || [];
+      var lo = Math.min.apply(null, flat);
+      var hi = Math.max.apply(null, flat);
+      yMin = Math.max(60, Math.floor(lo) - 2);
+      yMax = Math.min(100, Math.ceil(hi) + 2);
+    }
 
     make("chartTrenNilai", {
       type: "line",
@@ -147,8 +157,8 @@
             },
           },
           y: {
-            min: 76,
-            max: 86,
+            min: yMin,
+            max: yMax,
             ticks: { stepSize: 2, color: COLORS.muted },
             grid: { color: COLORS.grid },
             border: { display: false },
@@ -163,7 +173,10 @@
       },
     });
 
-    const pg = data.pengumpulanRingkas;
+    const pg =
+      global.UI && UI.getPengumpulanRingkas
+        ? UI.getPengumpulanRingkas()
+        : data.pengumpulanRingkas;
     const bagian = [
       { nama: "Terkumpul", jumlah: pg.terkumpul, warna: COLORS.teal },
       { nama: "Terlambat", jumlah: pg.terlambat, warna: COLORS.amber },
@@ -268,7 +281,10 @@
   }
 
   function createAnalisisCharts(data, canvasId) {
-    const siswa = data.siswaPerhatian;
+    const siswa =
+      global.UI && UI.getSiswaPerhatianScoped
+        ? UI.getSiswaPerhatianScoped()
+        : data.siswaPerhatian;
     const palette = [COLORS.accent, COLORS.amber, COLORS.teal, "#7C3AED", COLORS.navy, "#DC2626"];
 
     make(canvasId || "chartTrenSiswa", {
@@ -446,7 +462,9 @@
   }
 
   function createRekapAbsensiChart(data) {
-    var st = hitungStatus(data.kehadiran);
+    var rows =
+      global.UI && UI.getKehadiranScoped ? UI.getKehadiranScoped() : data.kehadiran;
+    var st = hitungStatus(rows);
     make("chartRekapHadir", {
       type: "bar",
       data: {
@@ -475,7 +493,11 @@
 
   function createAnalisisDashCharts(data) {
     createAnalisisCharts(data, "chartAnalisisTren");
-    var list = data.siswaPerhatian.slice(0, 6);
+    var list =
+      (global.UI && UI.getSiswaPerhatianScoped
+        ? UI.getSiswaPerhatianScoped()
+        : data.siswaPerhatian
+      ).slice(0, 6);
     make("chartAnalisisBanding", {
       type: "bar",
       data: {
@@ -504,12 +526,20 @@
     var ui = data.ui || {};
     var mapel = ui.mapelPerk || "Matematika";
     var kelas = ui.kelasPerk || "V-A";
+    if (global.UI && UI.getPeran && UI.getPeran() === "guru" && UI.scopeGuru) {
+      mapel = UI.scopeGuru.mapel;
+      kelas = UI.scopeGuru.waliKelas;
+    }
     var pool = data.siswa.filter(function (s) { return s.kelas === kelas; });
     var flagged = pool.filter(function (s) { return s.alasanList && s.alasanList.length; });
     var list = (flagged.length ? flagged : pool).slice(0, 4);
     var palette = [COLORS.accent, COLORS.teal, COLORS.amber, COLORS.navy];
     var ada = list.length && list[0].nilaiMapel[mapel];
-    var rataMapel = data.mapel.map(function (m) {
+    var mapelList =
+      global.UI && UI.getPeran && UI.getPeran() === "guru" && UI.mapelDiampuGuru
+        ? UI.mapelDiampuGuru()
+        : data.mapel;
+    var rataMapel = mapelList.map(function (m) {
       var nilai = pool.map(function (s) { return s.nilaiMapel[m] ? s.nilaiMapel[m].akhir : 0; });
       var sum = nilai.reduce(function (a, b) { return a + b; }, 0);
       return nilai.length ? Math.round((sum / nilai.length) * 10) / 10 : 0;
@@ -517,7 +547,7 @@
     make("chartPerkBanding", {
       type: "bar",
       data: {
-        labels: data.mapel.map(function (m) { return m === "Bahasa Indonesia" ? "B. Indonesia" : m === "Pendidikan Agama Islam" ? "PAI" : m; }),
+        labels: mapelList.map(function (m) { return m === "Bahasa Indonesia" ? "B. Indonesia" : m === "Pendidikan Agama Islam" ? "PAI" : m; }),
         datasets: [{ label: "Rata-rata " + kelas, data: rataMapel, backgroundColor: COLORS.teal, borderRadius: 6, barThickness: 18 }],
       },
       options: {
@@ -564,12 +594,21 @@
   function createDetailCharts(data) {
     var s = data.siswa.filter(function (x) { return x.id === data.siswaDipilih; })[0] || data.siswa[0];
     if (!s) return;
+    if (global.UI && UI.getPeran && UI.getPeran() === "guru" && UI.inScopeSiswa && !UI.inScopeSiswa(s)) {
+      s = data.siswa.filter(function (x) { return UI.inScopeSiswa(x); })[0] || s;
+    }
     var palette = [COLORS.accent, COLORS.teal, COLORS.amber];
+    var mapelDetail =
+      global.UI && UI.getPeran && UI.getPeran() === "guru"
+        ? [UI.scopeGuru.mapel, "Bahasa Indonesia", "IPA"].filter(function (m, i, a) {
+            return a.indexOf(m) === i;
+          })
+        : ["Matematika", "Bahasa Indonesia", "IPA"];
     make("chartDetailNilai", {
       type: "line",
       data: {
         labels: data.periode,
-        datasets: ["Matematika", "Bahasa Indonesia", "IPA"].map(function (mapel, i) {
+        datasets: mapelDetail.map(function (mapel, i) {
           return {
             label: mapel === "Bahasa Indonesia" ? "B. Indonesia" : mapel,
             data: s.nilaiMapel[mapel].historis,
@@ -609,8 +648,10 @@
   }
 
   function createPortalChart(data) {
-    var nis = data.orangTua.anakNis[0];
-    var rec = data.kehadiran.filter(function (k) { return k.nis === nis; });
+    var nisList =
+      global.UI && UI.anakNisOrangtua ? UI.anakNisOrangtua() : data.orangTua.anakNis;
+    var nis = nisList[0];
+    var rec = data.kehadiran.filter(function (k) { return nisList.indexOf(k.nis) >= 0; });
     var st = hitungStatus(rec);
     make("chartPortalHadir", {
       type: "doughnut",
@@ -629,7 +670,8 @@
 
   function renderForPage(page, data) {
     destroyAll();
-    if (page === "dashboard") createDashboardCharts(data);
+    var peran = global.UI && UI.getPeran ? UI.getPeran() : null;
+    if (page === "dashboard" && peran !== "admin" && peran !== "orangtua") createDashboardCharts(data);
     if (page === "rekap") createRekapCharts(data);
     if (page === "analisis") createAnalisisCharts(data);
     if (page === "absensi") createAbsensiCharts(data);

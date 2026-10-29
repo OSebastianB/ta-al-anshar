@@ -20,46 +20,49 @@
           </div>
         </div>
         <nav class="sidebar-nav" aria-label="Menu utama">
-          <button class="nav-item" data-page="absensi" data-akses="admin guru kepsek" type="button">
+          <button class="nav-item active" data-page="dashboard" data-akses="admin guru" type="button">
+            <i class="bi bi-grid-1x2"></i><span id="navDashboardLabel">Dashboard</span>
+          </button>
+          <button class="nav-item" data-page="portal" data-akses="orangtua" type="button">
+            <i class="bi bi-house-heart"></i><span>Portal Orang Tua</span>
+          </button>
+          <button class="nav-item" data-page="absensi" data-akses="admin guru" type="button">
             <i class="bi bi-clipboard-check"></i><span>Dashboard Absensi</span>
           </button>
-          <button class="nav-item" data-page="kehadiran" data-akses="admin guru kepsek" type="button">
+          <button class="nav-item" data-page="kehadiran" data-akses="admin guru" type="button">
             <i class="bi bi-person-check"></i><span>Data Kehadiran</span>
           </button>
           <button class="nav-item" data-page="pegawai" data-akses="admin" type="button">
             <i class="bi bi-person-badge"></i><span>Kehadiran Pegawai</span>
           </button>
-          <button class="nav-item" data-page="jadwal" data-akses="admin guru kepsek" type="button">
+          <button class="nav-item" data-page="jadwal" data-akses="admin guru" type="button">
             <i class="bi bi-calendar-week"></i><span>Jadwal Kelas</span>
           </button>
-          <button class="nav-item" data-page="rekap-absensi" data-akses="admin guru kepsek" type="button">
+          <button class="nav-item" data-page="rekap-absensi" data-akses="admin guru" type="button">
             <i class="bi bi-bar-chart-line"></i><span>Rekap Absensi</span>
           </button>
-          <button class="nav-item active" data-page="dashboard" data-akses="admin guru kepsek" type="button">
-            <i class="bi bi-grid-1x2"></i><span>Dashboard Akademik</span>
-          </button>
-          <button class="nav-item" data-page="tugas" data-akses="admin guru" type="button">
+          <button class="nav-item" data-page="tugas" data-akses="guru" type="button">
             <i class="bi bi-journal-text"></i><span>Manajemen Tugas</span>
           </button>
-          <button class="nav-item" data-page="pengumpulan" data-akses="admin guru" type="button">
+          <button class="nav-item" data-page="pengumpulan" data-akses="guru" type="button">
             <i class="bi bi-inbox"></i><span>Pengumpulan Tugas</span>
           </button>
-          <button class="nav-item" data-page="penilaian" data-akses="admin guru" type="button">
+          <button class="nav-item" data-page="penilaian" data-akses="guru" type="button">
             <i class="bi bi-check2-square"></i><span>Penilaian</span>
           </button>
-          <button class="nav-item" data-page="rekap" data-akses="admin guru kepsek" type="button">
+          <button class="nav-item" data-page="rekap" data-akses="admin guru" type="button">
             <i class="bi bi-table"></i><span>Rekap Nilai</span>
           </button>
-          <button class="nav-item" data-page="analisis-dashboard" data-akses="admin guru kepsek" type="button">
+          <button class="nav-item" data-page="analisis-dashboard" data-akses="guru" type="button">
             <i class="bi bi-pie-chart"></i><span>Dashboard Analisis</span>
           </button>
-          <button class="nav-item" data-page="perkembangan" data-akses="admin guru kepsek" type="button">
+          <button class="nav-item" data-page="perkembangan" data-akses="guru" type="button">
             <i class="bi bi-graph-up-arrow"></i><span>Perkembangan Nilai</span>
           </button>
-          <button class="nav-item" data-page="peringatan" data-akses="admin guru kepsek" type="button">
+          <button class="nav-item" data-page="peringatan" data-akses="guru" type="button">
             <i class="bi bi-exclamation-diamond"></i><span>Peringatan Dini</span>
           </button>
-          <button class="nav-item" data-page="detail-siswa" data-akses="admin guru kepsek" type="button">
+          <button class="nav-item" data-page="detail-siswa" data-akses="guru" type="button">
             <i class="bi bi-person-vcard"></i><span>Detail Siswa</span>
           </button>
         </nav>
@@ -115,7 +118,7 @@
                 <li><h6 class="dropdown-header">Simulasi role (RBAC)</h6></li>
                 <li><button class="dropdown-item" type="button" data-ganti-peran="admin">Admin Sekolah</button></li>
                 <li><button class="dropdown-item" type="button" data-ganti-peran="guru">Guru / Wali Kelas</button></li>
-                <li><button class="dropdown-item" type="button" data-ganti-peran="kepsek">Kepala Sekolah</button></li>
+                <li><button class="dropdown-item" type="button" data-ganti-peran="orangtua">Orang Tua</button></li>
                 <li><hr class="dropdown-divider" /></li>
                 <li><button class="dropdown-item js-demo" type="button">Keluar</button></li>
               </ul>
@@ -278,22 +281,42 @@
           <section class="page" id="page-portal">
             <div class="page-header">
               <div>
-                <h1>Kehadiran Anak</h1>
-                <p id="portalSub">Status dan riwayat kehadiran anak yang tertaut pada akun orang tua.</p>
+                <h1>Portal Orang Tua</h1>
+                <p id="portalSub">Informasi anak yang tertaut pada akun orang tua. Hanya baca.</p>
               </div>
             </div>
             <div class="kpi-grid" id="portalKpi"></div>
             <div class="split-2">
               <div class="panel">
-                <div class="panel-head"><div><h2>Komposisi Kehadiran</h2><p class="panel-sub">Oktober 2026 sampai hari ini. Hanya baca.</p></div></div>
+                <div class="panel-head"><div><h2>Komposisi Kehadiran</h2><p class="panel-sub">Oktober 2026 sampai hari ini.</p></div></div>
                 <div class="panel-body"><div class="chart-box"><canvas id="chartPortalHadir"></canvas></div></div>
               </div>
               <div class="panel">
-                <div class="panel-head"><h2>Riwayat</h2></div>
+                <div class="panel-head"><h2>Riwayat Kehadiran</h2></div>
                 <div class="table-wrap" style="max-height:320px">
                   <table class="data-table">
                     <thead><tr><th>Tanggal</th><th>Waktu</th><th>Status</th><th>Keterangan</th></tr></thead>
                     <tbody id="portalBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="split-2" style="margin-top:16px">
+              <div class="panel">
+                <div class="panel-head"><div><h2>Nilai &amp; Perkembangan</h2><p class="panel-sub">Ringkasan nilai akhir mata pelajaran anak.</p></div></div>
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead><tr><th>Mata Pelajaran</th><th>Tugas</th><th>Kuis</th><th>Ujian</th><th>Nilai Akhir</th><th>Tren</th></tr></thead>
+                    <tbody id="portalNilaiBody"></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><div><h2>Status Tugas</h2><p class="panel-sub">Pengumpulan tugas anak yang tertaut.</p></div></div>
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead><tr><th>Tugas</th><th>Mapel</th><th>Status</th><th>Nilai</th></tr></thead>
+                    <tbody id="portalTugasBody"></tbody>
                   </table>
                 </div>
               </div>
@@ -307,12 +330,12 @@
               </div>
             </div>
             <div class="kpi-grid" id="dashboardKpi"></div>
-            <div class="chart-row">
+            <div class="chart-row" data-role-widget="guru">
               <div class="panel">
                 <div class="panel-head">
                   <div>
-                    <h2>Perkembangan Nilai Akademik</h2>
-                    <p class="panel-sub">Rata-rata tiga mapel inti, Juli–Oktober 2026. Nilai Oktober selaras dengan rekap mapel.</p>
+                    <h2 id="dashTrenTitle">Perkembangan Nilai Akademik</h2>
+                    <p class="panel-sub" id="dashTrenSub">Rata-rata tiga mapel inti, Juli–Oktober 2026. Nilai Oktober selaras dengan rekap mapel.</p>
                   </div>
                 </div>
                 <div class="panel-body">
@@ -335,13 +358,39 @@
                 </div>
               </div>
             </div>
-            <div class="panel">
+            <div data-role-widget="admin" hidden>
+              <div class="split-2">
+                <div class="panel">
+                  <div class="panel-head"><div><h2>Kehadiran Siswa Hari Ini</h2><p class="panel-sub">Ringkasan operasional absensi.</p></div></div>
+                  <div class="table-wrap">
+                    <table class="data-table dense">
+                      <thead><tr><th>Kelas</th><th>Hadir</th><th>Terlambat</th><th>Tidak Hadir</th></tr></thead>
+                      <tbody id="dashAdminHadirBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="panel">
+                  <div class="panel-head"><div><h2>Kehadiran Pegawai Hari Ini</h2><p class="panel-sub">Status tenaga pendidik dan kependidikan.</p></div></div>
+                  <div class="table-wrap">
+                    <table class="data-table dense">
+                      <thead><tr><th>Nama</th><th>Unit</th><th>Status</th></tr></thead>
+                      <tbody id="dashAdminPegawaiBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="panel" style="margin-top:16px">
+                <div class="panel-head"><div><h2>Perhatian Administrasi</h2><p class="panel-sub">Jadwal hari ini dan catatan yang perlu ditinjau admin.</p></div></div>
+                <div class="panel-body" id="dashAdminCatatan"></div>
+              </div>
+            </div>
+            <div class="panel" data-role-widget="guru" id="dashPerhatianPanel">
               <div class="panel-head">
                 <div>
                   <h2>Siswa Perlu Perhatian</h2>
                   <p class="panel-sub">Ditandai menurut ambang contoh. Penandaan sementara untuk ditinjau guru, bukan label tetap.</p>
                 </div>
-                <button class="btn btn-sm btn-outline-secondary" type="button" data-buka="peringatan">Buka peringatan dini</button>
+                <button class="btn btn-sm btn-outline-secondary" type="button" data-buka="peringatan" data-role-widget="guru">Buka peringatan dini</button>
               </div>
               <div class="panel-body" style="padding-bottom: 0">
                 <div class="table-wrap">
@@ -364,6 +413,15 @@
               <p class="panel-note">
                 Penandaan bersifat sementara untuk ditinjau guru, berdasarkan penurunan nilai, nilai di bawah ambang, atau tugas yang belum dikumpulkan. Ini bukan label tetap.
               </p>
+            </div>
+            <div class="panel" data-role-widget="guru" hidden id="dashGuruJadwalPanel" style="margin-top:16px">
+              <div class="panel-head"><div><h2>Jadwal Mengajar Hari Ini</h2><p class="panel-sub" id="dashGuruJadwalSub">Slot mengajar sesuai cakupan guru.</p></div></div>
+              <div class="table-wrap">
+                <table class="data-table dense">
+                  <thead><tr><th>Jam</th><th>Kelas</th><th>Mata Pelajaran</th><th>Ruang</th></tr></thead>
+                  <tbody id="dashGuruJadwalBody"></tbody>
+                </table>
+              </div>
             </div>
           </section>
 
