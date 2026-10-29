@@ -267,18 +267,18 @@
     });
   }
 
-  function createAnalisisCharts(data) {
+  function createAnalisisCharts(data, canvasId) {
     const siswa = data.siswaPerhatian;
-    const palette = [COLORS.accent, COLORS.amber, COLORS.teal];
+    const palette = [COLORS.accent, COLORS.amber, COLORS.teal, "#7C3AED", COLORS.navy, "#DC2626"];
 
-    make("chartTrenSiswa", {
+    make(canvasId || "chartTrenSiswa", {
       type: "line",
       data: {
         labels: data.trenNilai.labels,
         datasets: siswa.map(function (s, i) {
           return {
             label: s.namaPendek,
-            data: s.tren,
+            data: s.bulanan,
             borderColor: palette[i],
             backgroundColor: palette[i],
             borderWidth: 2.5,
@@ -358,11 +358,286 @@
     });
   }
 
+  function hitungStatus(rows) {
+    var out = { Hadir: 0, Terlambat: 0, Izin: 0, Sakit: 0, Alpa: 0 };
+    rows.forEach(function (r) {
+      out[r.status] = (out[r.status] || 0) + 1;
+    });
+    return out;
+  }
+
+  function createAbsensiCharts(data) {
+    var scopeKelas = null;
+    if (global.UI && UI.getPeran && UI.getPeran() === "guru" && UI.scopeGuru) {
+      scopeKelas = UI.scopeGuru.waliKelas;
+    }
+    var kelasList = scopeKelas ? [scopeKelas] : data.kelas;
+    var minggu = ["2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29"];
+    var labels = ["Senin", "Selasa", "Rabu", "Kamis"];
+    var grup = ["Hadir", "Terlambat", "Tidak hadir"];
+    var warna = [COLORS.teal, COLORS.amber, COLORS.red];
+    make("chartHadirMinggu", {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: grup.map(function (g, i) {
+          return {
+            label: g,
+            data: minggu.map(function (iso) {
+              return data.kehadiran.filter(function (k) {
+                if (k.tanggal !== iso) return false;
+                if (scopeKelas && k.kelas !== scopeKelas) return false;
+                if (g === "Tidak hadir") return k.status === "Izin" || k.status === "Sakit" || k.status === "Alpa";
+                return k.status === g;
+              }).length;
+            }),
+            backgroundColor: warna[i],
+            borderRadius: 4,
+            barThickness: scopeKelas ? 18 : 14,
+          };
+        }),
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: "bottom", labels: { padding: 12 } } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: COLORS.muted } },
+          y: { beginAtZero: true, suggestedMax: scopeKelas ? 12 : undefined, ticks: { color: COLORS.muted, precision: 0 }, grid: { color: COLORS.grid }, border: { display: false } },
+        },
+      },
+    });
+
+    make("chartHadirKelas", {
+      type: "bar",
+      data: {
+        labels: kelasList,
+        datasets: [
+          {
+            label: "Persen hadir hari ini",
+            data: kelasList.map(function (kelas) {
+              var rows = data.kehadiran.filter(function (k) {
+                return k.tanggal === data.hariIni && k.kelas === kelas;
+              });
+              var hadir = rows.filter(function (k) {
+                return k.status === "Hadir" || k.status === "Terlambat";
+              }).length;
+              return rows.length ? Math.round((hadir / rows.length) * 1000) / 10 : 0;
+            }),
+            backgroundColor: COLORS.accent,
+            borderRadius: 6,
+            barThickness: 22,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: function (ctx) { return " " + ctx.parsed.y + "% hadir"; } } },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: COLORS.muted } },
+          y: { min: 0, max: 100, ticks: { color: COLORS.muted }, grid: { color: COLORS.grid }, border: { display: false } },
+        },
+      },
+    });
+  }
+
+  function createRekapAbsensiChart(data) {
+    var st = hitungStatus(data.kehadiran);
+    make("chartRekapHadir", {
+      type: "bar",
+      data: {
+        labels: ["Hadir", "Terlambat", "Izin", "Sakit", "Alpa"],
+        datasets: [
+          {
+            label: "Jumlah catatan",
+            data: [st.Hadir, st.Terlambat, st.Izin, st.Sakit, st.Alpa],
+            backgroundColor: [COLORS.teal, COLORS.amber, COLORS.accent, "#64748B", COLORS.red],
+            borderRadius: 6,
+            barThickness: 28,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: COLORS.muted } },
+          y: { beginAtZero: true, ticks: { color: COLORS.muted, precision: 0 }, grid: { color: COLORS.grid }, border: { display: false } },
+        },
+      },
+    });
+  }
+
+  function createAnalisisDashCharts(data) {
+    createAnalisisCharts(data, "chartAnalisisTren");
+    var list = data.siswaPerhatian.slice(0, 6);
+    make("chartAnalisisBanding", {
+      type: "bar",
+      data: {
+        labels: list.map(function (s) { return s.namaPendek; }),
+        datasets: [
+          { label: "Rata-rata nilai", data: list.map(function (s) { return s.rataRata; }), backgroundColor: COLORS.accent, borderRadius: 4, barThickness: 14 },
+          { label: "Persen kehadiran", data: list.map(function (s) { return s.persenHadir; }), backgroundColor: COLORS.teal, borderRadius: 4, barThickness: 14 },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom", labels: { padding: 12 } },
+          tooltip: { callbacks: { label: function (ctx) { return " " + ctx.dataset.label + ": " + ctx.parsed.y; } } },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: COLORS.muted } },
+          y: { min: 0, max: 100, ticks: { color: COLORS.muted }, grid: { color: COLORS.grid }, border: { display: false } },
+        },
+      },
+    });
+  }
+
+  function createPerkembanganChart(data) {
+    var ui = data.ui || {};
+    var mapel = ui.mapelPerk || "Matematika";
+    var kelas = ui.kelasPerk || "V-A";
+    var pool = data.siswa.filter(function (s) { return s.kelas === kelas; });
+    var flagged = pool.filter(function (s) { return s.alasanList && s.alasanList.length; });
+    var list = (flagged.length ? flagged : pool).slice(0, 4);
+    var palette = [COLORS.accent, COLORS.teal, COLORS.amber, COLORS.navy];
+    var ada = list.length && list[0].nilaiMapel[mapel];
+    var rataMapel = data.mapel.map(function (m) {
+      var nilai = pool.map(function (s) { return s.nilaiMapel[m] ? s.nilaiMapel[m].akhir : 0; });
+      var sum = nilai.reduce(function (a, b) { return a + b; }, 0);
+      return nilai.length ? Math.round((sum / nilai.length) * 10) / 10 : 0;
+    });
+    make("chartPerkBanding", {
+      type: "bar",
+      data: {
+        labels: data.mapel.map(function (m) { return m === "Bahasa Indonesia" ? "B. Indonesia" : m === "Pendidikan Agama Islam" ? "PAI" : m; }),
+        datasets: [{ label: "Rata-rata " + kelas, data: rataMapel, backgroundColor: COLORS.teal, borderRadius: 6, barThickness: 18 }],
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { min: 0, max: 100, ticks: { color: COLORS.muted }, grid: { color: COLORS.grid }, border: { display: false } },
+          y: { grid: { display: false }, ticks: { color: COLORS.navy }, border: { display: false } },
+        },
+      },
+    });
+    make("chartPerkembangan", {
+      type: "line",
+      data: {
+        labels: data.periode,
+        datasets: ada
+          ? list.map(function (s, i) {
+              return {
+                label: s.namaPendek,
+                data: s.nilaiMapel[mapel].historis,
+                borderColor: palette[i],
+                backgroundColor: palette[i],
+                borderWidth: 2.5,
+                tension: 0.3,
+                pointRadius: 4,
+                pointBackgroundColor: "#fff",
+                pointBorderWidth: 2,
+              };
+            })
+          : [],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: { legend: { position: "bottom", labels: { padding: 12 } } },
+        scales: lineScales(),
+      },
+    });
+  }
+
+  function createDetailCharts(data) {
+    var s = data.siswa.filter(function (x) { return x.id === data.siswaDipilih; })[0] || data.siswa[0];
+    if (!s) return;
+    var palette = [COLORS.accent, COLORS.teal, COLORS.amber];
+    make("chartDetailNilai", {
+      type: "line",
+      data: {
+        labels: data.periode,
+        datasets: ["Matematika", "Bahasa Indonesia", "IPA"].map(function (mapel, i) {
+          return {
+            label: mapel === "Bahasa Indonesia" ? "B. Indonesia" : mapel,
+            data: s.nilaiMapel[mapel].historis,
+            borderColor: palette[i],
+            backgroundColor: palette[i],
+            borderWidth: 2.5,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: "#fff",
+            pointBorderWidth: 2,
+          };
+        }),
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: { legend: { position: "bottom", labels: { padding: 12 } } },
+        scales: lineScales(),
+      },
+    });
+    var rec = data.kehadiran.filter(function (k) { return k.nis === s.nis; });
+    var st = hitungStatus(rec);
+    make("chartDetailHadir", {
+      type: "doughnut",
+      data: {
+        labels: ["Hadir", "Terlambat", "Izin", "Sakit", "Alpa"],
+        datasets: [{ data: [st.Hadir, st.Terlambat, st.Izin, st.Sakit, st.Alpa], backgroundColor: [COLORS.teal, COLORS.amber, COLORS.accent, "#94A3B8", COLORS.red], borderWidth: 0 }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "62%",
+        plugins: { legend: { position: "bottom", labels: { padding: 8 } } },
+      },
+    });
+  }
+
+  function createPortalChart(data) {
+    var nis = data.orangTua.anakNis[0];
+    var rec = data.kehadiran.filter(function (k) { return k.nis === nis; });
+    var st = hitungStatus(rec);
+    make("chartPortalHadir", {
+      type: "doughnut",
+      data: {
+        labels: ["Hadir", "Terlambat", "Izin", "Sakit", "Alpa"],
+        datasets: [{ data: [st.Hadir, st.Terlambat, st.Izin, st.Sakit, st.Alpa], backgroundColor: [COLORS.teal, COLORS.amber, COLORS.accent, "#94A3B8", COLORS.red], borderWidth: 0 }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "62%",
+        plugins: { legend: { position: "bottom", labels: { padding: 8 } } },
+      },
+    });
+  }
+
   function renderForPage(page, data) {
     destroyAll();
     if (page === "dashboard") createDashboardCharts(data);
     if (page === "rekap") createRekapCharts(data);
     if (page === "analisis") createAnalisisCharts(data);
+    if (page === "absensi") createAbsensiCharts(data);
+    if (page === "rekap-absensi") createRekapAbsensiChart(data);
+    if (page === "portal") createPortalChart(data);
+    if (page === "analisis-dashboard") createAnalisisDashCharts(data);
+    if (page === "perkembangan") createPerkembanganChart(data);
+    if (page === "detail-siswa") createDetailCharts(data);
   }
 
   global.AppCharts = {

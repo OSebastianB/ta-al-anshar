@@ -1,18 +1,128 @@
 (function () {
   const D = window.APP_DATA;
   const PAGES = {
-    dashboard: { title: "Dashboard Akademik", crumb: "Akademik / Dashboard" },
-    tugas: { title: "Manajemen Tugas", crumb: "Akademik / Manajemen Tugas" },
-    pengumpulan: { title: "Pengumpulan Tugas", crumb: "Akademik / Pengumpulan" },
-    penilaian: { title: "Penilaian Akademik", crumb: "Akademik / Penilaian" },
-    rekap: { title: "Rekap Nilai Akademik", crumb: "Akademik / Rekap Nilai" },
-    analisis: { title: "Analisis Performa Akademik", crumb: "Akademik / Analisis" },
+    dashboard: { title: "Dashboard Akademik", crumb: "Penilaian / Dashboard" },
+    tugas: { title: "Manajemen Tugas", crumb: "Penilaian / Manajemen Tugas" },
+    pengumpulan: { title: "Pengumpulan Tugas", crumb: "Penilaian / Pengumpulan" },
+    penilaian: { title: "Penilaian Akademik", crumb: "Penilaian / Penilaian" },
+    rekap: { title: "Rekap Nilai Akademik", crumb: "Penilaian / Rekap Nilai" },
+    analisis: { title: "Analisis Performa Akademik", crumb: "Penilaian / Analisis" },
+    absensi: { title: "Dashboard Absensi", crumb: "Absensi / Dashboard" },
+    kehadiran: { title: "Kehadiran Siswa", crumb: "Absensi / Siswa" },
+    pegawai: { title: "Kehadiran Pegawai", crumb: "Absensi / Pegawai" },
+    jadwal: { title: "Jadwal Kelas", crumb: "Jadwal / Kelas" },
+    "rekap-absensi": { title: "Rekap Absensi", crumb: "Absensi / Rekap" },
+    portal: { title: "Kehadiran Anak", crumb: "Orang Tua / Kehadiran Anak" },
+    "analisis-dashboard": { title: "Dashboard Analisis", crumb: "Analisis / Dashboard" },
+    perkembangan: { title: "Perkembangan Nilai", crumb: "Analisis / Perkembangan" },
+    peringatan: { title: "Peringatan Dini", crumb: "Analisis / Peringatan Dini" },
+    "detail-siswa": { title: "Detail Siswa", crumb: "Analisis / Detail Siswa" },
+    alur: { title: "Alur Integrasi", crumb: "Integrasi / Alur Data" },
   };
 
   let toastInst;
   let modalTugas;
   let modalKumpul;
   let currentPage = "dashboard";
+  let peranAktif = "guru";
+  const SCOPE_GURU = D.peranContoh.guru;
+  const ROLE = {
+    admin: {
+      home: "dashboard",
+      pages: [
+        "dashboard",
+        "tugas",
+        "pengumpulan",
+        "penilaian",
+        "rekap",
+        "analisis",
+        "absensi",
+        "kehadiran",
+        "pegawai",
+        "jadwal",
+        "rekap-absensi",
+        "analisis-dashboard",
+        "perkembangan",
+        "peringatan",
+        "detail-siswa",
+      ],
+      izin: {
+        "catat-hadir": true,
+        "tambah-jadwal": true,
+        "buat-tugas": false,
+        "edit-tugas": false,
+        "terima-kumpul": false,
+        "isi-nilai": "koreksi",
+        "simpan-nilai": "koreksi",
+        "atur-ambang": true,
+        "simpan-catatan": true,
+        "catat-pegawai": true,
+        "unduh-rekap": true,
+      },
+    },
+    guru: {
+      home: "dashboard",
+      pages: [
+        "dashboard",
+        "tugas",
+        "pengumpulan",
+        "penilaian",
+        "rekap",
+        "analisis",
+        "absensi",
+        "kehadiran",
+        "jadwal",
+        "rekap-absensi",
+        "analisis-dashboard",
+        "perkembangan",
+        "peringatan",
+        "detail-siswa",
+      ],
+      izin: {
+        "catat-hadir": true,
+        "tambah-jadwal": false,
+        "buat-tugas": true,
+        "edit-tugas": true,
+        "terima-kumpul": true,
+        "isi-nilai": true,
+        "simpan-nilai": true,
+        "atur-ambang": false,
+        "simpan-catatan": true,
+        "catat-pegawai": false,
+        "unduh-rekap": true,
+      },
+    },
+    kepsek: {
+      home: "dashboard",
+      pages: [
+        "dashboard",
+        "rekap",
+        "analisis",
+        "absensi",
+        "kehadiran",
+        "jadwal",
+        "rekap-absensi",
+        "analisis-dashboard",
+        "perkembangan",
+        "peringatan",
+        "detail-siswa",
+      ],
+      izin: {
+        "catat-hadir": false,
+        "tambah-jadwal": false,
+        "buat-tugas": false,
+        "edit-tugas": false,
+        "terima-kumpul": false,
+        "isi-nilai": false,
+        "simpan-nilai": false,
+        "atur-ambang": false,
+        "simpan-catatan": false,
+        "catat-pegawai": false,
+        "unduh-rekap": true,
+      },
+    },
+  };
+  const PROFIL_PERAN = D.peranContoh;
 
   function $(id) {
     return document.getElementById(id);
@@ -99,22 +209,107 @@
       .join("");
   }
 
+  function boleh(izin) {
+    var v = ROLE[peranAktif] && ROLE[peranAktif].izin[izin];
+    return v === true || v === "koreksi";
+  }
+
+  function modeIzin(izin) {
+    return (ROLE[peranAktif] && ROLE[peranAktif].izin[izin]) || false;
+  }
+
+  function persenHadirSekolah() {
+    var total = D.kehadiran.length;
+    var hadir = D.kehadiran.filter(function (k) {
+      return k.status === "Hadir" || k.status === "Terlambat";
+    }).length;
+    return total ? Math.round((hadir / total) * 1000) / 10 : 0;
+  }
+
+  function jadwalHariIniGuru() {
+    return D.jadwal.filter(function (j) {
+      return j.hari === D.hariIniNama && j.guru === SCOPE_GURU.nama;
+    }).length;
+  }
+
+  function perhatianUntukPeran() {
+    if (peranAktif !== "guru") return D.siswaPerhatian;
+    return D.siswaPerhatian.filter(function (s) {
+      return s.kelas === SCOPE_GURU.waliKelas;
+    });
+  }
+
+  function applyIzinUi() {
+    document.querySelectorAll("[data-izin]").forEach(function (el) {
+      var key = el.dataset.izin;
+      var ok = boleh(key);
+      el.hidden = !ok;
+      el.classList.toggle("izin-disabled", !ok);
+      if (el.tagName === "BUTTON" || el.tagName === "INPUT") {
+        el.disabled = !ok;
+      }
+    });
+    document.querySelectorAll("[data-izin-field]").forEach(function (el) {
+      var ok = modeIzin(el.dataset.izinField) === true;
+      el.readOnly = !ok;
+      el.disabled = !ok;
+    });
+    var badge = $("ambangReadonly");
+    if (badge) badge.hidden = modeIzin("atur-ambang") === true;
+    document.body.dataset.peran = peranAktif;
+  }
+
   function renderDashboard() {
     const k = D.kpi;
-    const items = [
-      { label: "Siswa Aktif", value: k.siswaAktif, icon: "bi-people", tone: "navy" },
-      { label: "Tugas Aktif", value: k.tugasAktif, icon: "bi-journal-text", tone: "blue" },
-      { label: "Belum Dinilai", value: k.belumDinilai, icon: "bi-hourglass-split", tone: "amber" },
-      { label: "Rata-rata Nilai", value: fmt(k.rataRataNilai), icon: "bi-bar-chart", tone: "teal" },
-    ];
-    const hints = [
-      "siswa terdaftar",
-      "masih berlangsung",
-      "menunggu penilaian",
-      "seluruh mata pelajaran",
-    ];
+    var items;
+    var judul = "Dashboard Akademik";
+    var sub = "Ringkasan aktivitas dan perkembangan akademik siswa.";
+    if (peranAktif === "admin") {
+      judul = "Dashboard Sekolah";
+      sub = "Ringkasan operasional sekolah untuk admin. Data contoh semester ganjil 2026/2027.";
+      items = [
+        { label: "Total Siswa", value: k.siswaAktif, icon: "bi-people", tone: "navy", hint: "lima kelas contoh" },
+        { label: "Total Guru", value: Object.keys(D.guruMap).length, icon: "bi-person-workspace", tone: "blue", hint: "mapel aktif" },
+        { label: "Total Kelas", value: D.kelas.length, icon: "bi-building", tone: "teal", hint: "IV–VI" },
+        { label: "Belum Dinilai", value: k.belumDinilai, icon: "bi-hourglass-split", tone: "amber", hint: "menunggu guru" },
+      ];
+    } else if (peranAktif === "kepsek") {
+      judul = "Dashboard Kepala Sekolah";
+      sub = "Pemantauan dan pelaporan sekolah. Tanpa aksi mengubah nilai atau absensi individu.";
+      items = [
+        { label: "Siswa & Guru", value: k.siswaAktif + " / " + Object.keys(D.guruMap).length, icon: "bi-people", tone: "navy", hint: "data contoh" },
+        { label: "Kehadiran sekolah", value: String(persenHadirSekolah()).replace(".", ",") + "%", icon: "bi-clipboard-check", tone: "teal", hint: "Oktober 2026" },
+        { label: "Rata-rata nilai", value: fmt(k.rataRataNilai), icon: "bi-bar-chart", tone: "blue", hint: "seluruh mapel" },
+        { label: "Perlu ditinjau", value: D.siswaPerhatian.length, icon: "bi-exclamation-diamond", tone: "amber", hint: "peringatan dini" },
+      ];
+    } else {
+      judul = "Dashboard Guru / Wali Kelas";
+      sub =
+        "Cakupan contoh: mapel " +
+        SCOPE_GURU.mapel +
+        " dan wali kelas " +
+        SCOPE_GURU.waliKelas +
+        ".";
+      var tugasGuru = D.tugas.filter(function (t) {
+        return t.mapel === SCOPE_GURU.mapel && t.status === "Aktif";
+      }).length;
+      var belumGuru = D.pengumpulan.filter(function (p) {
+        return p.mapel === SCOPE_GURU.mapel && p.penilaian === "Belum Dinilai" && p.status !== "Belum Dikumpulkan";
+      }).length;
+      var hadirKelas = D.kehadiran.filter(function (h) {
+        return h.tanggal === D.hariIni && h.kelas === SCOPE_GURU.waliKelas && (h.status === "Hadir" || h.status === "Terlambat");
+      }).length;
+      items = [
+        { label: "Jadwal hari ini", value: jadwalHariIniGuru(), icon: "bi-calendar-week", tone: "navy", hint: D.hariIniNama },
+        { label: "Tugas aktif", value: tugasGuru, icon: "bi-journal-text", tone: "blue", hint: SCOPE_GURU.mapel },
+        { label: "Belum dinilai", value: belumGuru, icon: "bi-hourglass-split", tone: "amber", hint: "mapel saya" },
+        { label: "Hadir kelas wali", value: hadirKelas + "/10", icon: "bi-person-check", tone: "teal", hint: SCOPE_GURU.waliKelas },
+      ];
+    }
+    if ($("dashboardJudul")) $("dashboardJudul").textContent = judul;
+    if ($("dashboardSub")) $("dashboardSub").textContent = sub;
     $("dashboardKpi").innerHTML = items
-      .map(function (it, i) {
+      .map(function (it) {
         return (
           '<div class="kpi-card"><div class="kpi-icon ' +
           it.tone +
@@ -125,46 +320,49 @@
           '</div><div class="kpi-value">' +
           it.value +
           '</div><div class="kpi-hint">' +
-          hints[i] +
+          it.hint +
           "</div></div></div>"
         );
       })
       .join("");
 
-    $("dashboardPerhatianBody").innerHTML = D.siswaPerhatian
-      .map(function (s) {
-        const arah = s.perubahan < 0 ? "down" : "flat";
-        return (
-          "<tr>" +
-          '<td class="name-cell">' +
-          s.namaPendek +
-          "</td>" +
-          "<td>" +
-          s.kelas +
-          "</td>" +
-          "<td>" +
-          s.nilaiSebelumnya +
-          "</td>" +
-          '<td><span class="name-cell">' +
-          s.rataRata +
-          '</span> <span class="trend ' +
-          arah +
-          '">' +
-          s.perubahan +
-          "</span></td>" +
-          "<td>" +
-          s.tugasBelum +
-          "</td>" +
-          "<td>" +
-          s.indikator +
-          "</td>" +
-          "<td>" +
-          s.tindakLanjut +
-          "</td>" +
-          "</tr>"
-        );
-      })
-      .join("");
+    var list = perhatianUntukPeran();
+    $("dashboardPerhatianBody").innerHTML = list.length
+      ? list
+          .map(function (s) {
+            const arah = s.perubahan < 0 ? "down" : "flat";
+            return (
+              "<tr>" +
+              '<td class="name-cell">' +
+              s.namaPendek +
+              "</td>" +
+              "<td>" +
+              s.kelas +
+              "</td>" +
+              "<td>" +
+              s.nilaiSebelumnya +
+              "</td>" +
+              '<td><span class="name-cell">' +
+              s.rataRata +
+              '</span> <span class="trend ' +
+              arah +
+              '">' +
+              s.perubahan +
+              "</span></td>" +
+              "<td>" +
+              s.tugasBelum +
+              "</td>" +
+              "<td>" +
+              s.indikator +
+              "</td>" +
+              "<td>" +
+              s.tindakLanjut +
+              "</td>" +
+              "</tr>"
+            );
+          })
+          .join("")
+      : emptyRow(7, "Tidak ada siswa yang perlu ditinjau pada cakupan role ini.");
   }
 
   function filteredTugas() {
@@ -177,7 +375,8 @@
       const matchK = !kelas || t.kelas === kelas;
       const matchM = !mapel || t.mapel === mapel;
       const matchS = !status || t.status === status;
-      return matchQ && matchK && matchM && matchS;
+      const matchScope = peranAktif !== "guru" || t.mapel === SCOPE_GURU.mapel;
+      return matchQ && matchK && matchM && matchS && matchScope;
     });
   }
 
@@ -213,19 +412,40 @@
             '<button class="btn btn-sm btn-outline-secondary" type="button" data-aksi="detail-tugas" data-id="' +
             t.id +
             '">Lihat</button>' +
-            '<button class="btn btn-sm btn-outline-secondary js-demo" type="button">Edit</button>' +
+            (boleh("edit-tugas")
+              ? '<button class="btn btn-sm btn-outline-secondary js-demo" type="button" data-izin="edit-tugas">Edit</button>'
+              : "") +
             "</div></td>" +
             "</tr>"
           );
         })
         .join("");
     }
-    $("tugasTableFoot").textContent =
-      "Menampilkan " + rows.length + " dari " + D.tugas.length + " tugas.";
+    var totalScope =
+      peranAktif === "guru" ? D.tugas.filter(function (t) { return t.mapel === SCOPE_GURU.mapel; }).length : D.tugas.length;
+    $("tugasTableFoot").textContent = "Menampilkan " + rows.length + " dari " + totalScope + " tugas pada cakupan role.";
+    applyIzinUi();
   }
 
   function renderPengumpulanKpi() {
-    const p = D.pengumpulanRingkas;
+    var base =
+      peranAktif === "guru"
+        ? D.pengumpulan.filter(function (r) {
+            return r.mapel === SCOPE_GURU.mapel;
+          })
+        : D.pengumpulan;
+    var p = {
+      total: base.length,
+      terkumpul: base.filter(function (r) {
+        return r.status === "Sudah Dikumpulkan";
+      }).length,
+      terlambat: base.filter(function (r) {
+        return r.status === "Terlambat";
+      }).length,
+      belum: base.filter(function (r) {
+        return r.status === "Belum Dikumpulkan";
+      }).length,
+    };
     const items = [
       { label: "Total Pengumpulan", value: p.total, icon: "bi-collection", tone: "navy" },
       { label: "Sudah Dikumpulkan", value: p.terkumpul, icon: "bi-check-circle", tone: "teal" },
@@ -257,7 +477,8 @@
       return (
         (!kelas || r.kelas === kelas) &&
         (!tugas || r.tugas === tugas) &&
-        (!status || r.status === status)
+        (!status || r.status === status) &&
+        (peranAktif !== "guru" || r.mapel === SCOPE_GURU.mapel)
       );
     });
   }
@@ -303,10 +524,10 @@
             '<button class="btn btn-sm btn-outline-secondary" type="button" data-aksi="detail-kumpul" data-id="' +
             r.id +
             '">Lihat Detail</button>' +
-            (canAccept
+            (canAccept && boleh("terima-kumpul")
               ? '<button class="btn btn-sm btn-primary" type="button" data-aksi="terima" data-id="' +
                 r.id +
-                '">Tandai Diterima</button>'
+                '" data-izin="terima-kumpul">Tandai Diterima</button>'
               : "") +
             "</div></td>" +
             "</tr>"
@@ -315,11 +536,15 @@
         .join("");
     }
     $("kumpulTableFoot").textContent =
-      "Menampilkan " + rows.length + " dari " + D.pengumpulan.length + " catatan. Ringkasan sekolah: 120 pengumpulan.";
+      "Menampilkan " + rows.length + " catatan pada filter dan cakupan role aktif.";
+    applyIzinUi();
   }
 
   function renderKuis() {
-    $("kuisTableBody").innerHTML = D.kuisOtomatis
+    var list = D.kuisOtomatis.filter(function (k) {
+      return peranAktif !== "guru" || k.mapel === SCOPE_GURU.mapel;
+    });
+    $("kuisTableBody").innerHTML = list
       .map(function (k) {
         const st = k.status === "Selesai dinilai" ? pill("success", k.status) : pill("warning", k.status);
         return (
@@ -385,34 +610,57 @@
   }
 
   function renderManual() {
-    $("manualTableBody").innerHTML = D.penilaianManual
-      .map(function (m) {
-        return (
-          "<tr>" +
-          '<td class="name-cell">' +
-          m.nama +
-          "</td>" +
-          "<td>" +
-          m.tugas +
-          "</td>" +
-          "<td>" +
-          m.skorMaks +
-          "</td>" +
-          "<td>" +
-          (m.nilai === null ? pill("muted", "Belum dinilai") : m.nilai) +
-          "</td>" +
-          "<td>" +
-          (m.catatan || "—") +
-          "</td>" +
-          '<td><button class="btn btn-sm btn-outline-secondary" type="button" data-aksi="isi-nilai" data-id="' +
-          m.id +
-          '">' +
-          (m.nilai === null ? "Input nilai" : "Ubah") +
-          "</button></td>" +
-          "</tr>"
-        );
-      })
-      .join("");
+    var rows = D.penilaianManual.filter(function (m) {
+      if (peranAktif !== "guru") return true;
+      var t = D.tugas.find(function (x) {
+        return x.judul === m.tugas;
+      });
+      return t && t.mapel === SCOPE_GURU.mapel;
+    });
+    var mode = modeIzin("isi-nilai");
+    $("manualTableBody").innerHTML = rows.length
+      ? rows
+          .map(function (m) {
+            var label =
+              mode === "koreksi"
+                ? "Ajukan koreksi"
+                : mode
+                  ? m.nilai === null
+                    ? "Input nilai"
+                    : "Ubah"
+                  : "Hanya baca";
+            return (
+              "<tr>" +
+              '<td class="name-cell">' +
+              m.nama +
+              "</td>" +
+              "<td>" +
+              m.tugas +
+              "</td>" +
+              "<td>" +
+              m.skorMaks +
+              "</td>" +
+              "<td>" +
+              (m.nilai === null ? pill("muted", "Belum dinilai") : m.nilai) +
+              "</td>" +
+              "<td>" +
+              (m.catatan || "—") +
+              "</td>" +
+              "<td>" +
+              (mode
+                ? '<button class="btn btn-sm btn-outline-secondary" type="button" data-aksi="isi-nilai" data-id="' +
+                  m.id +
+                  '">' +
+                  label +
+                  "</button>"
+                : '<span class="badge-readonly">Hanya baca</span>') +
+              "</td>" +
+              "</tr>"
+            );
+          })
+          .join("")
+      : emptyRow(6, "Tidak ada penilaian manual pada cakupan role ini.");
+    applyIzinUi();
   }
 
   function fillManualForm(item) {
@@ -427,16 +675,35 @@
     const kelas = $("rekapFilterKelas").value;
     const mapel = $("rekapFilterMapel").value;
     const q = $("rekapSearch").value.trim().toLowerCase();
-    return D.rekapNilai.filter(function (r) {
-      const matchK = !kelas || r.kelas === kelas;
-      const matchM = !mapel || r.mapel === mapel;
-      const matchQ = !q || r.nama.toLowerCase().includes(q);
-      return matchK && matchM && matchQ;
-    });
+    return D.siswa
+      .filter(function (s) {
+        return (!kelas || s.kelas === kelas) && (!q || s.nama.toLowerCase().indexOf(q) >= 0);
+      })
+      .map(function (s) {
+        var n = mapel && s.nilaiMapel[mapel] ? s.nilaiMapel[mapel] : s;
+        return {
+          nama: s.nama,
+          kelas: s.kelas,
+          tugas: n.tugas,
+          kuis: n.kuis,
+          ujian: n.ujian,
+          akhir: n.akhir,
+          tren: n.tren,
+        };
+      });
   }
 
   function renderRekap() {
-    const r = D.ringkasanKelas;
+    const rowsAwal = filteredRekap();
+    const nilai = rowsAwal.map(function (s) { return s.akhir; });
+    const r = nilai.length
+      ? {
+          rataRata: Math.round((nilai.reduce(function (a, b) { return a + b; }, 0) / nilai.length) * 10) / 10,
+          tertinggi: Math.max.apply(null, nilai),
+          terendah: Math.min.apply(null, nilai),
+          jumlahSiswa: nilai.length,
+        }
+      : D.ringkasanKelas;
     $("rekapSummary").innerHTML =
       '<div class="summary-item"><div class="si-l">Rata-rata</div><div class="si-v">' +
       fmt(r.rataRata) +
@@ -537,8 +804,100 @@
   }
 
   /* ——— Navigation ——— */
+  function applyPeran(peran, opts) {
+    opts = opts || {};
+    if (!ROLE[peran]) peran = "guru";
+    peranAktif = peran;
+    try {
+      localStorage.setItem("ta_demo_peran", peran);
+    } catch (e) {}
+    var profil = PROFIL_PERAN[peran];
+    $("avatarInisial").textContent = profil.inisial;
+    $("profilNama").textContent = profil.nama;
+    $("profilPeran").textContent = profil.peran;
+    document.querySelectorAll(".nav-item").forEach(function (btn) {
+      var raw = (btn.dataset.akses || "").trim();
+      var allowed = !raw || raw.split(/\s+/).indexOf(peran) >= 0;
+      btn.hidden = !allowed || ROLE[peran].pages.indexOf(btn.dataset.page) < 0;
+    });
+    var catatan = {
+      admin: [
+        { ikon: "bi-person-badge", judul: "Pak Budi Santoso izin hari ini", waktu: "Hari ini, 06.40" },
+        { ikon: "bi-exclamation-diamond", judul: D.siswaPerhatian.length + " siswa perlu ditinjau guru", waktu: "Oktober 2026" },
+      ],
+      guru: [
+        { ikon: "bi-clock", judul: "Ahmad Fauzan terlambat di kelas V-A", waktu: "Hari ini, 07.18" },
+        { ikon: "bi-clipboard-check", judul: "Pengumpulan Matematika menunggu penilaian", waktu: "Hari ini, 08.15" },
+        { ikon: "bi-person-exclamation", judul: perhatianUntukPeran().length + " siswa kelas wali perlu ditinjau", waktu: "Oktober 2026" },
+      ],
+      kepsek: [
+        { ikon: "bi-bar-chart", judul: "Rata-rata nilai sekolah " + fmt(D.kpi.rataRataNilai), waktu: "Oktober 2026" },
+        { ikon: "bi-clipboard-check", judul: "Kehadiran sekolah " + String(persenHadirSekolah()).replace(".", ",") + "%", waktu: "Oktober 2026" },
+        { ikon: "bi-exclamation-diamond", judul: D.siswaPerhatian.length + " siswa memenuhi kriteria perhatian", waktu: "Laporan" },
+      ],
+    };
+    $("notifList").innerHTML = (catatan[peran] || [])
+      .map(function (n) {
+        return '<div class="notif-item"><i class="bi ' + n.ikon + '"></i><div><div class="n-title">' + n.judul + '</div><div class="n-time">' + n.waktu + "</div></div></div>";
+      })
+      .join("");
+    applyIzinUi();
+    if (peran === "guru") {
+      if ($("tugasFilterMapel")) $("tugasFilterMapel").value = SCOPE_GURU.mapel;
+      if ($("rekapFilterMapel")) $("rekapFilterMapel").value = SCOPE_GURU.mapel;
+      if ($("rekapFilterKelas")) $("rekapFilterKelas").value = "";
+      if ($("hadirKelas")) $("hadirKelas").value = SCOPE_GURU.waliKelas;
+      if ($("perkKelas")) $("perkKelas").value = SCOPE_GURU.waliKelas;
+      if ($("perkMapel")) $("perkMapel").value = SCOPE_GURU.mapel;
+    } else {
+      if ($("tugasFilterMapel")) $("tugasFilterMapel").value = "";
+      if ($("rekapFilterMapel")) $("rekapFilterMapel").value = "";
+      if ($("hadirKelas")) $("hadirKelas").value = "";
+    }
+    if ($("tugasFilterKelas")) {
+      renderDashboard();
+      renderTugas();
+      renderPengumpulanKpi();
+      renderPengumpulan();
+      renderKuis();
+      renderHasilOtomatis();
+      renderManual();
+      renderRekap();
+      renderAnalisis();
+    }
+    document.querySelectorAll(".scope-note").forEach(function (n) {
+      n.remove();
+    });
+    var noteHost = document.querySelector("#page-dashboard .page-header div");
+    if (noteHost && peran === "guru") {
+      var note = document.createElement("p");
+      note.className = "scope-note";
+      note.textContent =
+        "Cakupan demo: Guru Matematika · Wali kelas " +
+        SCOPE_GURU.waliKelas +
+        ". Menu dan aksi menyesuaikan kewenangan role.";
+      noteHost.appendChild(note);
+    } else if (noteHost && peran === "kepsek") {
+      var note2 = document.createElement("p");
+      note2.className = "scope-note";
+      note2.textContent = "Akses pemantauan: tombol ubah nilai dan catat absensi disembunyikan pada Mode Demo.";
+      noteHost.appendChild(note2);
+    } else if (noteHost && peran === "admin") {
+      var note3 = document.createElement("p");
+      note3.className = "scope-note";
+      note3.textContent = "Admin mengelola data dan jadwal. Perubahan nilai memakai alur koreksi yang ditinjau guru mapel.";
+      noteHost.appendChild(note3);
+    }
+    var page = location.hash.slice(1);
+    if (!PAGES[page] || ROLE[peran].pages.indexOf(page) < 0) page = ROLE[peran].home;
+    showPage(page);
+    if (!opts.silent) {
+      showToast("Mode Demo: role diganti ke " + profil.peran + ". Ini simulasi akses, bukan login sungguhan.");
+    }
+  }
+
   function showPage(page) {
-    if (!PAGES[page]) page = "dashboard";
+    if (!PAGES[page] || ROLE[peranAktif].pages.indexOf(page) < 0) page = ROLE[peranAktif].home;
     currentPage = page;
     document.querySelectorAll(".page").forEach(function (el) {
       el.classList.toggle("active", el.id === "page-" + page);
@@ -553,6 +912,15 @@
     }
     closeSidebar();
     closeMenus();
+    if (window.Modul1) Modul1.onShow(page);
+    if (window.Modul3) Modul3.onShow(page);
+    var sub = document.getElementById("donutSub");
+    if (sub && D.pengumpulanRingkas) {
+      var pg = D.pengumpulanRingkas;
+      sub.textContent =
+        pg.total + " pengumpulan pada data contoh: " + pg.terkumpul + " terkumpul, " + pg.terlambat + " terlambat, " + pg.belum + " belum.";
+    }
+    applyIzinUi();
     requestAnimationFrame(function () {
       AppCharts.renderForPage(page, D);
     });
@@ -676,20 +1044,24 @@
     $("sidebarOverlay").addEventListener("click", closeSidebar);
 
     ["tugasSearch", "tugasFilterKelas", "tugasFilterMapel", "tugasFilterStatus"].forEach(function (id) {
+      if (!$(id)) return;
       $(id).addEventListener("input", renderTugas);
       $(id).addEventListener("change", renderTugas);
     });
     ["kumpulFilterKelas", "kumpulFilterTugas", "kumpulFilterStatus"].forEach(function (id) {
-      $(id).addEventListener("change", renderPengumpulan);
+      if ($(id)) $(id).addEventListener("change", renderPengumpulan);
     });
     ["rekapFilterKelas", "rekapFilterMapel", "rekapSearch"].forEach(function (id) {
+      if (!$(id)) return;
       $(id).addEventListener("input", renderRekap);
       $(id).addEventListener("change", renderRekap);
     });
-    $("rekapFilterSemester").addEventListener("change", function () {
-      renderRekap();
-      showToast("Mode demonstrasi: aksi ini hanya simulasi.");
-    });
+    if ($("rekapFilterSemester")) {
+      $("rekapFilterSemester").addEventListener("change", function () {
+        renderRekap();
+        showToast("Mode demonstrasi: aksi ini hanya simulasi.");
+      });
+    }
 
     document.querySelectorAll(".seg-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
@@ -698,24 +1070,60 @@
     });
 
     document.body.addEventListener("click", function (e) {
+      const buka = e.target.closest("[data-buka]");
+      if (buka && PAGES[buka.dataset.buka]) {
+        showPage(buka.dataset.buka);
+        return;
+      }
+      const ganti = e.target.closest("[data-ganti-peran]");
+      if (ganti) {
+        applyPeran(ganti.dataset.gantiPeran);
+        closeMenus();
+        return;
+      }
       const demo = e.target.closest(".js-demo");
       if (demo) {
         e.preventDefault();
         demoToast();
         return;
       }
+      const blocked = e.target.closest("[data-izin].izin-disabled, [data-izin][disabled]");
+      if (blocked) {
+        e.preventDefault();
+        e.stopPropagation();
+        showToast("Mode Demo: aksi ini tidak tersedia untuk role " + $("profilPeran").textContent + ".");
+        return;
+      }
       const aksi = e.target.closest("[data-aksi]");
       if (!aksi) return;
       const type = aksi.dataset.aksi;
       const id = aksi.dataset.id;
+      if (type === "detail-siswa" && window.Modul3) {
+        Modul3.pilih(id);
+        showPage("detail-siswa");
+      }
       if (type === "detail-tugas") openDetailTugas(id);
       if (type === "detail-kumpul") openDetailKumpul(id);
-      if (type === "terima") tandaiDiterima(id);
+      if (type === "terima") {
+        if (!boleh("terima-kumpul")) {
+          showToast("Mode Demo: penerimaan pengumpulan hanya untuk guru mapel.");
+          return;
+        }
+        tandaiDiterima(id);
+      }
       if (type === "lihat-hasil") {
         renderHasilOtomatis();
         showToast("Menampilkan contoh hasil penilaian otomatis.");
       }
       if (type === "isi-nilai") {
+        if (modeIzin("isi-nilai") === "koreksi") {
+          showToast("Mode Demo: admin mengajukan koreksi nilai. Perubahan harus ditinjau guru mapel. Data tidak disimpan.");
+          return;
+        }
+        if (!boleh("isi-nilai")) {
+          showToast("Mode Demo: mengubah nilai tidak tersedia untuk role ini.");
+          return;
+        }
         const item = D.penilaianManual.find(function (x) {
           return x.id === id;
         });
@@ -724,15 +1132,27 @@
       }
     });
 
-    $("formBuatTugas").addEventListener("submit", function (e) {
+    if ($("formBuatTugas")) $("formBuatTugas").addEventListener("submit", function (e) {
       e.preventDefault();
+      if (!boleh("buat-tugas")) {
+        showToast("Mode Demo: membuat tugas hanya untuk guru mapel.");
+        return;
+      }
       bootstrap.Modal.getInstance($("modalBuatTugas")).hide();
       $("formBuatTugas").reset();
       showToast("Mode demonstrasi: data tidak disimpan.");
     });
 
-    $("formManual").addEventListener("submit", function (e) {
+    if ($("formManual")) $("formManual").addEventListener("submit", function (e) {
       e.preventDefault();
+      if (modeIzin("simpan-nilai") === "koreksi") {
+        showToast("Mode Demo: koreksi nilai admin dicatat untuk ditinjau. Data tidak disimpan permanen.");
+        return;
+      }
+      if (!boleh("simpan-nilai")) {
+        showToast("Mode Demo: menyimpan nilai tidak tersedia untuk role ini.");
+        return;
+      }
       const id = e.currentTarget.dataset.id;
       if (!id) {
         showToast("Pilih siswa dari tabel terlebih dahulu.");
@@ -770,25 +1190,49 @@
   function init() {
     AppCharts.initDefaults();
     toastInst = new bootstrap.Toast($("appToast"), { delay: 2800 });
-    modalTugas = new bootstrap.Modal($("modalDetailTugas"));
-    modalKumpul = new bootstrap.Modal($("modalDetailKumpul"));
-    fillStaticSelects();
-    renderNotif();
-    renderDashboard();
-    renderTugas();
-    renderPengumpulanKpi();
-    renderPengumpulan();
-    renderKuis();
-    renderHasilOtomatis();
-    renderManual();
-    fillManualForm(D.penilaianManual[0]);
-    renderRekap();
-    renderAnalisis();
+    if ($("modalDetailTugas")) modalTugas = new bootstrap.Modal($("modalDetailTugas"));
+    if ($("modalDetailKumpul")) modalKumpul = new bootstrap.Modal($("modalDetailKumpul"));
+    if ($("tugasFilterKelas")) {
+      fillStaticSelects();
+      renderDashboard();
+      renderTugas();
+      renderPengumpulanKpi();
+      renderPengumpulan();
+      renderKuis();
+      renderHasilOtomatis();
+      renderManual();
+      fillManualForm(D.penilaianManual[0]);
+      renderRekap();
+      renderAnalisis();
+    }
     bindEvents();
     closeMenus();
-    const initial = location.hash.slice(1) || "dashboard";
-    showPage(initial);
+    var saved = "guru";
+    try {
+      saved = localStorage.getItem("ta_demo_peran") || "guru";
+    } catch (e) {}
+    if (!ROLE[saved]) saved = "guru";
+    applyPeran(saved, { silent: true });
   }
+
+  window.UI = {
+    $: $,
+    fmt: fmt,
+    showToast: showToast,
+    pill: pill,
+    emptyRow: emptyRow,
+    fillSelect: fillSelect,
+    trenHtml: trenHtml,
+    statusKumpulPill: statusKumpulPill,
+    showPage: showPage,
+    applyPeran: applyPeran,
+    boleh: boleh,
+    modeIzin: modeIzin,
+    getPeran: function () {
+      return peranAktif;
+    },
+    scopeGuru: SCOPE_GURU,
+  };
 
   document.addEventListener("DOMContentLoaded", init);
 })();

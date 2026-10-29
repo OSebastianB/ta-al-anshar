@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sistem Akademik — SD Islam Al-Anshar</title>
+    <title>Sistem Terintegrasi — SD Islam Al-Anshar</title>
     <link rel="stylesheet" href="assets/vendor/inter/inter.css" />
     <link rel="stylesheet" href="assets/vendor/bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.min.css" />
@@ -16,28 +16,51 @@
           <div class="brand-mark">A</div>
           <div>
             <div class="brand-title">AL-ANSHAR</div>
-            <div class="brand-sub">Sistem Akademik</div>
+            <div class="brand-sub">Sistem Terintegrasi</div>
           </div>
         </div>
         <nav class="sidebar-nav" aria-label="Menu utama">
-          <div class="nav-label">Akademik</div>
-          <button class="nav-item active" data-page="dashboard" type="button">
-            <i class="bi bi-grid-1x2"></i> Dashboard Akademik
+          <button class="nav-item" data-page="absensi" data-akses="admin guru kepsek" type="button">
+            <i class="bi bi-clipboard-check"></i><span>Dashboard Absensi</span>
           </button>
-          <button class="nav-item" data-page="tugas" type="button">
-            <i class="bi bi-journal-text"></i> Manajemen Tugas
+          <button class="nav-item" data-page="kehadiran" data-akses="admin guru kepsek" type="button">
+            <i class="bi bi-person-check"></i><span>Data Kehadiran</span>
           </button>
-          <button class="nav-item" data-page="pengumpulan" type="button">
-            <i class="bi bi-inbox"></i> Pengumpulan Tugas
+          <button class="nav-item" data-page="pegawai" data-akses="admin" type="button">
+            <i class="bi bi-person-badge"></i><span>Kehadiran Pegawai</span>
           </button>
-          <button class="nav-item" data-page="penilaian" type="button">
-            <i class="bi bi-check2-square"></i> Penilaian
+          <button class="nav-item" data-page="jadwal" data-akses="admin guru kepsek" type="button">
+            <i class="bi bi-calendar-week"></i><span>Jadwal Kelas</span>
           </button>
-          <button class="nav-item" data-page="rekap" type="button">
-            <i class="bi bi-table"></i> Rekap Nilai
+          <button class="nav-item" data-page="rekap-absensi" data-akses="admin guru kepsek" type="button">
+            <i class="bi bi-bar-chart-line"></i><span>Rekap Absensi</span>
           </button>
-          <button class="nav-item" data-page="analisis" type="button">
-            <i class="bi bi-graph-up-arrow"></i> Analisis Akademik
+          <button class="nav-item active" data-page="dashboard" data-akses="admin guru kepsek" type="button">
+            <i class="bi bi-grid-1x2"></i><span>Dashboard Akademik</span>
+          </button>
+          <button class="nav-item" data-page="tugas" data-akses="admin guru" type="button">
+            <i class="bi bi-journal-text"></i><span>Manajemen Tugas</span>
+          </button>
+          <button class="nav-item" data-page="pengumpulan" data-akses="admin guru" type="button">
+            <i class="bi bi-inbox"></i><span>Pengumpulan Tugas</span>
+          </button>
+          <button class="nav-item" data-page="penilaian" data-akses="admin guru" type="button">
+            <i class="bi bi-check2-square"></i><span>Penilaian</span>
+          </button>
+          <button class="nav-item" data-page="rekap" data-akses="admin guru kepsek" type="button">
+            <i class="bi bi-table"></i><span>Rekap Nilai</span>
+          </button>
+          <button class="nav-item" data-page="analisis-dashboard" data-akses="admin guru kepsek" type="button">
+            <i class="bi bi-pie-chart"></i><span>Dashboard Analisis</span>
+          </button>
+          <button class="nav-item" data-page="perkembangan" data-akses="admin guru kepsek" type="button">
+            <i class="bi bi-graph-up-arrow"></i><span>Perkembangan Nilai</span>
+          </button>
+          <button class="nav-item" data-page="peringatan" data-akses="admin guru kepsek" type="button">
+            <i class="bi bi-exclamation-diamond"></i><span>Peringatan Dini</span>
+          </button>
+          <button class="nav-item" data-page="detail-siswa" data-akses="admin guru kepsek" type="button">
+            <i class="bi bi-person-vcard"></i><span>Detail Siswa</span>
           </button>
         </nav>
         <div class="sidebar-footer">
@@ -54,11 +77,12 @@
               <i class="bi bi-list"></i>
             </button>
             <div class="crumb">
-              <span class="crumb-path" id="crumbPath">Akademik / Dashboard</span>
+              <span class="crumb-path" id="crumbPath">Penilaian / Dashboard</span>
               <span class="crumb-title" id="crumbTitle">Dashboard Akademik</span>
             </div>
           </div>
           <div class="topbar-right">
+            <span class="mode-demo" title="Pergantian role hanya simulasi frontend untuk presentasi">Mode Demo</span>
             <div class="dropdown">
               <button
                 class="icon-btn"
@@ -80,16 +104,18 @@
             </div>
             <div class="dropdown">
               <button class="profile-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <span class="avatar">GA</span>
+                <span class="avatar" id="avatarInisial">RS</span>
                 <span class="profile-meta">
-                  <span class="p-name">Guru Akademik</span>
-                  <span class="p-role">Guru</span>
+                  <span class="p-name" id="profilNama">Bu Ratna Sari</span>
+                  <span class="p-role" id="profilPeran">Guru / Wali Kelas</span>
                 </span>
                 <i class="bi bi-chevron-down" style="font-size: 12px; color: #64748b"></i>
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li><button class="dropdown-item js-demo" type="button">Profil saya</button></li>
-                <li><button class="dropdown-item js-demo" type="button">Pengaturan</button></li>
+                <li><h6 class="dropdown-header">Simulasi role (RBAC)</h6></li>
+                <li><button class="dropdown-item" type="button" data-ganti-peran="admin">Admin Sekolah</button></li>
+                <li><button class="dropdown-item" type="button" data-ganti-peran="guru">Guru / Wali Kelas</button></li>
+                <li><button class="dropdown-item" type="button" data-ganti-peran="kepsek">Kepala Sekolah</button></li>
                 <li><hr class="dropdown-divider" /></li>
                 <li><button class="dropdown-item js-demo" type="button">Keluar</button></li>
               </ul>
@@ -99,11 +125,185 @@
 
         <div class="app-content">
           <!-- 1. Dashboard -->
+          <section class="page" id="page-absensi">
+            <div class="page-header">
+              <div>
+                <h1>Dashboard Absensi</h1>
+                <p>Ringkasan kehadiran siswa hari ini. Pencatatan dilakukan guru berdasarkan kelas.</p>
+              </div>
+            </div>
+            <div class="kpi-grid" id="absensiKpi"></div>
+            <div class="chart-row">
+              <div class="panel">
+                <div class="panel-head"><div><h2>Kehadiran Mingguan</h2><p class="panel-sub">26–29 Oktober 2026. Tidak hadir mencakup izin, sakit, dan alpa.</p></div></div>
+                <div class="panel-body"><div class="chart-box"><canvas id="chartHadirMinggu"></canvas></div></div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><div><h2>Kehadiran per Kelas</h2><p class="panel-sub">Persentase hadir dan terlambat pada hari ini.</p></div></div>
+                <div class="panel-body"><div class="chart-box"><canvas id="chartHadirKelas"></canvas></div></div>
+              </div>
+            </div>
+            <div class="split-2">
+              <div class="panel">
+                <div class="panel-head"><h2>Ringkasan per Kelas</h2></div>
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead><tr><th>Kelas</th><th>Hadir</th><th>Terlambat</th><th>Tidak Hadir</th></tr></thead>
+                    <tbody id="absensiKelasBody"></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><h2>Status Kehadiran Hari Ini</h2></div>
+                <div class="table-wrap">
+                  <table class="data-table dense">
+                    <thead><tr><th>Nama</th><th>NIS</th><th>Kelas</th><th>Tanggal</th><th>Waktu</th><th>Status</th><th>Keterangan</th></tr></thead>
+                    <tbody id="absensiHariBody"></tbody>
+                  </table>
+                </div>
+                <div class="table-foot" id="absensiHariFoot"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-kehadiran">
+            <div class="page-header">
+              <div>
+                <h1>Data Kehadiran</h1>
+                <p>Catat dan tinjau kehadiran siswa. Rekap dihitung otomatis dari pencatatan, tanpa perangkat biometrik.</p>
+              </div>
+              <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalCatatHadir" data-izin="catat-hadir"><i class="bi bi-plus-lg"></i> Catat Kehadiran</button>
+            </div>
+            <div class="filter-bar">
+              <input class="form-control" id="hadirTanggal" type="date" style="max-width:180px" />
+              <select class="form-select" id="hadirKelas"></select>
+              <div class="search-wrap"><i class="bi bi-search"></i><input class="form-control" id="hadirCari" type="search" placeholder="Cari nama siswa…" /></div>
+            </div>
+            <p class="panel-sub" id="hadirRekap" style="margin:0 0 12px"></p>
+            <div class="panel">
+              <div class="table-wrap">
+                <table class="data-table dense">
+                  <thead><tr><th>Nama</th><th>NIS</th><th>Kelas</th><th>Tanggal</th><th>Waktu</th><th>Status</th><th>Keterangan</th><th>Aksi</th></tr></thead>
+                  <tbody id="hadirBody"></tbody>
+                </table>
+              </div>
+              <div class="table-foot" id="hadirFoot"></div>
+            </div>
+          </section>
+
+          <section class="page" id="page-jadwal">
+            <div class="page-header">
+              <div>
+                <h1>Jadwal Kelas</h1>
+                <p>Slot mingguan memuat mata pelajaran, jam, guru, dan ruang.</p>
+              </div>
+              <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalJadwal" data-izin="tambah-jadwal"><i class="bi bi-plus-lg"></i> Tambah Jadwal</button>
+            </div>
+            <div class="filter-bar">
+              <select class="form-select" id="jadwalKelas"></select>
+              <select class="form-select" id="jadwalHari"></select>
+            </div>
+            <div class="panel">
+              <div class="table-wrap">
+                <table class="data-table jadwal-table">
+                  <thead id="jadwalHead"></thead>
+                  <tbody id="jadwalBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-rekap-absensi">
+            <div class="page-header">
+              <div>
+                <h1>Rekap Absensi</h1>
+                <p>Ringkasan kehadiran per siswa pada rentang tanggal yang dipilih.</p>
+              </div>
+              <button class="btn btn-outline-secondary" id="btnExportAbsen" type="button"><i class="bi bi-download"></i> Ekspor laporan</button>
+            </div>
+            <div class="filter-bar">
+              <input class="form-control" id="rekapAbsenDari" type="date" style="max-width:170px" />
+              <input class="form-control" id="rekapAbsenSampai" type="date" style="max-width:170px" />
+              <select class="form-select" id="rekapAbsenKelas"></select>
+            </div>
+            <div class="kpi-grid kpi-grid-5" id="rekapAbsenKpi"></div>
+            <div class="split-2">
+              <div class="panel">
+                <div class="panel-head"><h2>Komposisi Status</h2></div>
+                <div class="panel-body"><div class="chart-box sm"><canvas id="chartRekapHadir"></canvas></div></div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><h2>Rekap per Siswa</h2></div>
+                <div class="table-wrap" style="max-height:280px">
+                  <table class="data-table">
+                    <thead><tr><th>Nama</th><th>Kelas</th><th>Hadir</th><th>Terlambat</th><th>Izin</th><th>Sakit</th><th>Alpa</th><th>%</th></tr></thead>
+                    <tbody id="rekapAbsenBody"></tbody>
+                  </table>
+                </div>
+                <div class="table-foot" id="rekapAbsenFoot"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-pegawai">
+            <div class="page-header">
+              <div>
+                <h1>Kehadiran Pegawai</h1>
+                <p>Pencatatan kehadiran guru dan tenaga kependidikan. Hanya tampil untuk administrator.</p>
+              </div>
+              <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalCatatPegawai" data-izin="catat-pegawai"><i class="bi bi-plus-lg"></i> Catat Kehadiran</button>
+            </div>
+            <div class="kpi-grid" id="pegawaiKpi"></div>
+            <div class="filter-bar">
+              <input class="form-control" id="pegawaiTanggal" type="date" style="max-width:180px" />
+              <select class="form-select" id="pegawaiUnit">
+                <option value="">Semua unit</option>
+                <option>Guru</option>
+                <option>Tata Usaha</option>
+                <option>Perpustakaan</option>
+                <option>Keamanan</option>
+              </select>
+            </div>
+            <div class="panel">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead><tr><th>Nama</th><th>NIP</th><th>Unit</th><th>Tanggal</th><th>Waktu</th><th>Status</th><th>Keterangan</th></tr></thead>
+                  <tbody id="pegawaiBody"></tbody>
+                </table>
+              </div>
+              <div class="table-foot" id="pegawaiFoot"></div>
+            </div>
+          </section>
+
+          <section class="page" id="page-portal">
+            <div class="page-header">
+              <div>
+                <h1>Kehadiran Anak</h1>
+                <p id="portalSub">Status dan riwayat kehadiran anak yang tertaut pada akun orang tua.</p>
+              </div>
+            </div>
+            <div class="kpi-grid" id="portalKpi"></div>
+            <div class="split-2">
+              <div class="panel">
+                <div class="panel-head"><div><h2>Komposisi Kehadiran</h2><p class="panel-sub">Oktober 2026 sampai hari ini. Hanya baca.</p></div></div>
+                <div class="panel-body"><div class="chart-box"><canvas id="chartPortalHadir"></canvas></div></div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><h2>Riwayat</h2></div>
+                <div class="table-wrap" style="max-height:320px">
+                  <table class="data-table">
+                    <thead><tr><th>Tanggal</th><th>Waktu</th><th>Status</th><th>Keterangan</th></tr></thead>
+                    <tbody id="portalBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
           <section class="page active" id="page-dashboard">
             <div class="page-header">
               <div>
-                <h1>Dashboard Akademik</h1>
-                <p>Ringkasan aktivitas dan perkembangan akademik siswa.</p>
+                <h1 id="dashboardJudul">Dashboard Akademik</h1>
+                <p id="dashboardSub">Ringkasan aktivitas dan perkembangan akademik siswa.</p>
               </div>
             </div>
             <div class="kpi-grid" id="dashboardKpi"></div>
@@ -125,7 +325,7 @@
                 <div class="panel-head">
                   <div>
                     <h2>Status Pengumpulan Tugas</h2>
-                    <p class="panel-sub">120 pengumpulan periode berjalan: 91 terkumpul, 17 terlambat, 12 belum.</p>
+                    <p class="panel-sub" id="donutSub">Ringkasan pengumpulan pada data contoh.</p>
                   </div>
                 </div>
                 <div class="panel-body">
@@ -139,8 +339,9 @@
               <div class="panel-head">
                 <div>
                   <h2>Siswa Perlu Perhatian</h2>
-                  <p class="panel-sub">Tiga siswa ditandai untuk ditinjau. Ambang nilai yang dikonfigurasi: 70.</p>
+                  <p class="panel-sub">Ditandai menurut ambang contoh. Penandaan sementara untuk ditinjau guru, bukan label tetap.</p>
                 </div>
+                <button class="btn btn-sm btn-outline-secondary" type="button" data-buka="peringatan">Buka peringatan dini</button>
               </div>
               <div class="panel-body" style="padding-bottom: 0">
                 <div class="table-wrap">
@@ -173,7 +374,7 @@
                 <h1>Manajemen Tugas</h1>
                 <p>Kelola tugas, kuis, dan ujian berdasarkan kelas dan mata pelajaran.</p>
               </div>
-              <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalBuatTugas">
+              <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalBuatTugas" data-izin="buat-tugas">
                 <i class="bi bi-plus-lg"></i> Buat Tugas
               </button>
             </div>
@@ -368,7 +569,7 @@
                         <label class="form-label" for="manualCatatan">Catatan guru</label>
                         <textarea class="form-control" id="manualCatatan" rows="3" placeholder="Umpan balik untuk siswa"></textarea>
                       </div>
-                      <button class="btn btn-primary" type="submit">Simpan nilai</button>
+                      <button class="btn btn-primary" type="submit" data-izin="simpan-nilai">Simpan nilai</button>
                     </form>
                   </div>
                 </div>
@@ -386,7 +587,7 @@
                 <h1>Rekap Nilai Akademik</h1>
                 <p>Ringkasan capaian akademik berdasarkan siswa, kelas, dan mata pelajaran.</p>
               </div>
-              <button class="btn btn-outline-secondary js-demo" type="button">
+              <button class="btn btn-outline-secondary js-demo" type="button" data-izin="unduh-rekap">
                 <i class="bi bi-download"></i> Unduh rekap
               </button>
             </div>
@@ -503,6 +704,238 @@
               </p>
             </div>
           </section>
+
+          <section class="page" id="page-analisis-dashboard">
+            <div class="page-header">
+              <div>
+                <h1>Dashboard Analisis</h1>
+                <p>Nilai dari modul penilaian dan kehadiran dari modul absensi dibaca bersama. Grafik bersifat deskriptif, bukan hubungan sebab-akibat.</p>
+              </div>
+            </div>
+            <div class="kpi-grid" id="analisisDashKpi"></div>
+            <div class="chart-row">
+              <div class="panel">
+                <div class="panel-head"><div><h2>Perkembangan Nilai</h2><p class="panel-sub">Siswa yang perlu ditinjau, Juli–Oktober 2026.</p></div></div>
+                <div class="panel-body"><div class="chart-box"><canvas id="chartAnalisisTren"></canvas></div></div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><div><h2>Nilai dan Kehadiran</h2><p class="panel-sub">Perbandingan deskriptif pada periode yang sama.</p></div></div>
+                <div class="panel-body"><div class="chart-box"><canvas id="chartAnalisisBanding"></canvas></div></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head">
+                <h2>Siswa yang Perlu Ditinjau Guru</h2>
+                <button class="btn btn-sm btn-outline-secondary" type="button" data-buka="peringatan" data-izin="atur-ambang">Atur ambang</button>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead><tr><th>Nama</th><th>Kelas</th><th>Rata-rata</th><th>Kehadiran</th><th>Tugas belum</th><th>Alasan</th><th></th></tr></thead>
+                  <tbody id="analisisDashBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-perkembangan">
+            <div class="page-header">
+              <div>
+                <h1>Perkembangan Nilai</h1>
+                <p>Tren nilai per siswa berdasarkan kelas, mata pelajaran, dan periode.</p>
+              </div>
+            </div>
+            <div class="filter-bar">
+              <select class="form-select" id="perkKelas"></select>
+              <select class="form-select" id="perkMapel"></select>
+              <select class="form-select" id="perkPeriode"></select>
+            </div>
+            <p class="panel-sub" id="perkNote" hidden></p>
+            <div class="chart-row">
+              <div class="panel">
+                <div class="panel-head"><h2>Tren Nilai</h2></div>
+                <div class="panel-body"><div class="chart-box"><canvas id="chartPerkembangan"></canvas></div></div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><div><h2>Perbandingan Antarmapel</h2><p class="panel-sub">Rata-rata nilai akhir kelas yang sedang dipilih.</p></div></div>
+                <div class="panel-body"><div class="chart-box"><canvas id="chartPerkBanding"></canvas></div></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h2>Sebelumnya dan Saat Ini</h2></div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead><tr><th>Nama Siswa</th><th>Nilai sebelumnya</th><th>Nilai saat ini</th><th>Tren</th></tr></thead>
+                  <tbody id="perkBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-peringatan">
+            <div class="page-header">
+              <div>
+                <h1>Peringatan Dini</h1>
+                <p>Aturan transparan untuk menandai siswa yang perlu ditinjau guru. Bukan label tetap.</p>
+              </div>
+            </div>
+            <div class="panel" style="margin-bottom:16px" id="panelAmbang">
+              <div class="panel-head"><h2>Ambang contoh</h2><span class="badge-readonly" id="ambangReadonly" hidden>Hanya baca</span></div>
+              <div class="panel-body">
+                <div class="row g-3">
+                  <div class="col-md-3"><label class="form-label" for="ambangNilai">Nilai di bawah</label><input class="form-control" id="ambangNilai" type="number" value="70" data-izin-field="atur-ambang" /></div>
+                  <div class="col-md-3"><label class="form-label" for="ambangTurun">Turun (poin)</label><input class="form-control" id="ambangTurun" type="number" value="10" data-izin-field="atur-ambang" /></div>
+                  <div class="col-md-3"><label class="form-label" for="ambangHadir">Kehadiran di bawah (%)</label><input class="form-control" id="ambangHadir" type="number" value="80" data-izin-field="atur-ambang" /></div>
+                  <div class="col-md-3"><label class="form-label" for="ambangTugas">Tugas belum</label><input class="form-control" id="ambangTugas" type="number" value="3" data-izin-field="atur-ambang" /></div>
+                </div>
+                <p id="peringatanCount" class="panel-sub" style="margin:12px 0 0"></p>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead><tr><th>Nama Siswa</th><th>Kelas</th><th>Rata-rata</th><th>Kehadiran</th><th>Tugas belum</th><th>Alasan ditandai</th><th>Tindak lanjut</th><th></th></tr></thead>
+                  <tbody id="peringatanBody"></tbody>
+                </table>
+              </div>
+              <p class="panel-note">Ambang ini adalah contoh, bukan standar resmi sekolah, dan dapat disesuaikan dengan kebijakan sekolah.</p>
+            </div>
+          </section>
+
+          <section class="page" id="page-detail-siswa">
+            <div class="page-header">
+              <div>
+                <h1 id="detailNama">Detail Siswa</h1>
+                <p id="detailMeta">Profil akademik dari data contoh.</p>
+              </div>
+              <button class="btn btn-outline-secondary" id="btnKembaliDetail" type="button"><i class="bi bi-arrow-left"></i> Kembali</button>
+            </div>
+            <div class="filter-bar">
+              <select class="form-select" id="detailPilih" style="max-width:360px"></select>
+            </div>
+            <div class="chart-row">
+              <div class="panel">
+                <div class="panel-head"><h2>Perkembangan Nilai</h2></div>
+                <div class="panel-body"><div class="chart-box"><canvas id="chartDetailNilai"></canvas></div></div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><h2>Ringkasan Kehadiran</h2></div>
+                <div class="panel-body">
+                  <p class="panel-sub" id="detailHadirRingkas"></p>
+                  <div class="chart-box sm"><canvas id="chartDetailHadir"></canvas></div>
+                </div>
+              </div>
+            </div>
+            <div class="split-2">
+              <div class="panel">
+                <div class="panel-head"><h2>Rekap Nilai per Mata Pelajaran</h2></div>
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead><tr><th>Mapel</th><th>Tugas</th><th>Kuis</th><th>Ujian</th><th>Akhir</th><th>Tren</th></tr></thead>
+                    <tbody id="detailNilaiBody"></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><h2>Alasan Tinjauan</h2></div>
+                <div class="panel-body" id="detailAlasan"></div>
+                <div class="panel-body" style="padding-top:0">
+                  <form id="formCatatan" autocomplete="off">
+                    <label class="form-label" for="detailCatatan">Catatan guru</label>
+                    <textarea class="form-control" id="detailCatatan" rows="3" placeholder="Catatan simulasi, tidak disimpan permanen"></textarea>
+                    <button class="btn btn-primary" type="submit" style="margin-top:12px" data-izin="simpan-catatan">Simpan catatan</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h2>Riwayat Pengumpulan Tugas</h2></div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead><tr><th>Tugas</th><th>Jenis</th><th>Tanggal</th><th>Status</th><th>Nilai</th></tr></thead>
+                  <tbody id="detailTugasBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-alur">
+            <div class="page-header">
+              <div>
+                <h1>Alur Integrasi</h1>
+                <p>Dua sumber data menjadi masukan analisis. Bukan rantai yang wajib berjalan satu arah.</p>
+              </div>
+            </div>
+            <div class="alur-board">
+              <div class="alur-col">
+                <article class="alur-card">
+                  <div class="alur-kicker">Modul 1</div>
+                  <h2>Absensi dan Jadwal</h2>
+                  <p>Menghasilkan data kehadiran harian, status, dan rekap persentase.</p>
+                  <ul>
+                    <li>Hadir, terlambat, izin, sakit, alpa</li>
+                    <li>Jadwal kelas sebagai konteks kegiatan</li>
+                  </ul>
+                </article>
+                <article class="alur-card">
+                  <div class="alur-kicker">Modul 2</div>
+                  <h2>Penilaian Akademik</h2>
+                  <p>Menghasilkan data nilai dan tugas, dari pengumpulan sampai rekap.</p>
+                  <ul>
+                    <li>Nilai tugas, kuis, ujian, dan nilai akhir</li>
+                    <li>Tugas yang belum dikumpulkan</li>
+                  </ul>
+                </article>
+              </div>
+              <div class="alur-mid">
+                <span>Data kehadiran</span>
+                <i class="bi bi-arrow-right"></i>
+                <span>Data nilai dan tugas</span>
+                <i class="bi bi-arrow-right"></i>
+              </div>
+              <article class="alur-card alur-card-main">
+                <div class="alur-kicker">Modul 3</div>
+                <h2>Analisis dan Peringatan Dini</h2>
+                <p>Kedua masukan dibaca bersama untuk menandai siswa yang perlu ditinjau guru.</p>
+                <ul>
+                  <li>Rata-rata nilai di bawah ambang</li>
+                  <li>Penurunan nilai dari periode sebelumnya</li>
+                  <li>Kehadiran di bawah ambang</li>
+                  <li>Beberapa tugas belum dikumpulkan</li>
+                </ul>
+                <p>Istilah yang dipakai: “Perlu ditinjau guru”.</p>
+              </article>
+            </div>
+          </section>
+
+
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalCatatPegawai" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form id="formCatatPegawai" autocomplete="off">
+            <div class="modal-header">
+              <h2 class="modal-title">Catat Kehadiran Pegawai</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+              <p class="panel-sub">Simulasi pencatatan hari ini. Data tidak disimpan permanen.</p>
+              <div class="mb-3"><label class="form-label" for="catatPegawaiNama">Pegawai</label><select class="form-select" id="catatPegawaiNama"></select></div>
+              <div class="mb-3">
+                <label class="form-label" for="catatPegawaiStatus">Status</label>
+                <select class="form-select" id="catatPegawaiStatus">
+                  <option>Hadir</option><option>Terlambat</option><option>Izin</option><option>Sakit</option><option>Alpa</option>
+                </select>
+              </div>
+              <div class="mb-3"><label class="form-label" for="catatPegawaiKet">Keterangan</label><input class="form-control" id="catatPegawaiKet" type="text" /></div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Batal</button>
+              <button class="btn btn-primary" type="submit">Simpan catatan</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -578,7 +1011,7 @@
           </div>
           <div class="modal-footer">
             <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Tutup</button>
-            <button class="btn btn-primary js-demo" type="button">Edit tugas</button>
+            <button class="btn btn-primary js-demo" type="button" data-izin="edit-tugas">Edit tugas</button>
           </div>
         </div>
       </div>
@@ -616,6 +1049,79 @@
     <script src="assets/vendor/chartjs/chart.umd.min.js"></script>
     <script src="assets/js/data.js"></script>
     <script src="assets/js/charts.js"></script>
+    <div class="modal fade" id="modalCatatHadir" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form id="formCatat" autocomplete="off">
+            <div class="modal-header">
+              <h2 class="modal-title">Catat Kehadiran</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+              <p class="panel-sub">Pencatatan untuk hari ini. Ini simulasi, tidak tersimpan permanen.</p>
+              <div class="mb-3"><label class="form-label" for="catatKelas">Kelas</label><select class="form-select" id="catatKelas"></select></div>
+              <div class="mb-3"><label class="form-label" for="catatSiswa">Siswa</label><select class="form-select" id="catatSiswa"></select></div>
+              <div class="mb-3">
+                <label class="form-label" for="catatStatus">Status</label>
+                <select class="form-select" id="catatStatus">
+                  <option>Hadir</option><option>Terlambat</option><option>Izin</option><option>Sakit</option><option>Alpa</option>
+                </select>
+              </div>
+              <div class="mb-3"><label class="form-label" for="catatKet">Keterangan</label><input class="form-control" id="catatKet" type="text" placeholder="Contoh: Tiba setelah bel" /></div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Batal</button>
+              <button class="btn btn-primary" type="submit">Simpan catatan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalDetailHadir" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title">Detail Kehadiran</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+          </div>
+          <div class="modal-body"><div class="detail-grid" id="detailHadirBody"></div></div>
+          <div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Tutup</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalJadwal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form id="formJadwal" autocomplete="off">
+            <div class="modal-header">
+              <h2 class="modal-title">Tambah Jadwal</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-6"><label class="form-label" for="fjKelas">Kelas</label><select class="form-select" id="fjKelas"></select></div>
+                <div class="col-md-6"><label class="form-label" for="fjHari">Hari</label><select class="form-select" id="fjHari"></select></div>
+                <div class="col-md-6"><label class="form-label" for="fjMulai">Jam mulai</label><input class="form-control" id="fjMulai" value="07.00" /></div>
+                <div class="col-md-6"><label class="form-label" for="fjSelesai">Jam selesai</label><input class="form-control" id="fjSelesai" value="07.40" /></div>
+                <div class="col-md-6"><label class="form-label" for="fjMapel">Mata pelajaran</label><select class="form-select" id="fjMapel"></select></div>
+                <div class="col-md-6"><label class="form-label" for="fjGuru">Guru</label><input class="form-control" id="fjGuru" type="text" /></div>
+                <div class="col-12"><label class="form-label" for="fjRuang">Ruang</label><input class="form-control" id="fjRuang" type="text" placeholder="R. IV-A" /></div>
+              </div>
+              <p class="form-error" id="jadwalError" hidden></p>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Batal</button>
+              <button class="btn btn-primary" type="submit">Simpan jadwal</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <script src="assets/js/app.js"></script>
+    <script src="assets/js/modul1.js"></script>
+    <script src="assets/js/modul3.js"></script>
   </body>
 </html>
