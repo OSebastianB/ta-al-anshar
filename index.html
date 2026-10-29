@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistem Akademik — SD Islam Al-Anshar</title>
+    <link rel="stylesheet" href="assets/vendor/inter/inter.css" />
+    <link rel="stylesheet" href="assets/vendor/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="app-sidebar" id="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-mark">A</div>
+          <div>
+            <div class="brand-title">AL-ANSHAR</div>
+            <div class="brand-sub">Sistem Akademik</div>
+          </div>
+        </div>
+        <nav class="sidebar-nav" aria-label="Menu utama">
+          <div class="nav-label">Akademik</div>
+          <button class="nav-item active" data-page="dashboard" type="button">
+            <i class="bi bi-grid-1x2"></i> Dashboard Akademik
+          </button>
+          <button class="nav-item" data-page="tugas" type="button">
+            <i class="bi bi-journal-text"></i> Manajemen Tugas
+          </button>
+          <button class="nav-item" data-page="pengumpulan" type="button">
+            <i class="bi bi-inbox"></i> Pengumpulan Tugas
+          </button>
+          <button class="nav-item" data-page="penilaian" type="button">
+            <i class="bi bi-check2-square"></i> Penilaian
+          </button>
+          <button class="nav-item" data-page="rekap" type="button">
+            <i class="bi bi-table"></i> Rekap Nilai
+          </button>
+          <button class="nav-item" data-page="analisis" type="button">
+            <i class="bi bi-graph-up-arrow"></i> Analisis Akademik
+          </button>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="sf-name">SD Islam Al-Anshar</div>
+          <div class="sf-city">Kota Bekasi</div>
+        </div>
+      </aside>
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+      <div class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Buka menu">
+              <i class="bi bi-list"></i>
+            </button>
+            <div class="crumb">
+              <span class="crumb-path" id="crumbPath">Akademik / Dashboard</span>
+              <span class="crumb-title" id="crumbTitle">Dashboard Akademik</span>
+            </div>
+          </div>
+          <div class="topbar-right">
+            <div class="dropdown">
+              <button
+                class="icon-btn"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                aria-label="Notifikasi"
+              >
+                <i class="bi bi-bell"></i>
+                <span class="dot"></span>
+              </button>
+              <div class="dropdown-menu dropdown-menu-end notif-menu">
+                <div class="notif-head">Notifikasi</div>
+                <div id="notifList"></div>
+                <div class="notif-foot">
+                  <button class="btn-ghost js-demo" type="button">Lihat semua notifikasi</button>
+                </div>
+              </div>
+            </div>
+            <div class="dropdown">
+              <button class="profile-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="avatar">GA</span>
+                <span class="profile-meta">
+                  <span class="p-name">Guru Akademik</span>
+                  <span class="p-role">Guru</span>
+                </span>
+                <i class="bi bi-chevron-down" style="font-size: 12px; color: #64748b"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><button class="dropdown-item js-demo" type="button">Profil saya</button></li>
+                <li><button class="dropdown-item js-demo" type="button">Pengaturan</button></li>
+                <li><hr class="dropdown-divider" /></li>
+                <li><button class="dropdown-item js-demo" type="button">Keluar</button></li>
+              </ul>
+            </div>
+          </div>
+        </header>
+
+        <div class="app-content">
+          <!-- 1. Dashboard -->
+          <section class="page active" id="page-dashboard">
+            <div class="page-header">
+              <div>
+                <h1>Dashboard Akademik</h1>
+                <p>Ringkasan aktivitas dan perkembangan akademik siswa.</p>
+              </div>
+            </div>
+            <div class="kpi-grid" id="dashboardKpi"></div>
+            <div class="chart-row">
+              <div class="panel">
+                <div class="panel-head">
+                  <div>
+                    <h2>Perkembangan Nilai Akademik</h2>
+                    <p class="panel-sub">Rata-rata tiga mapel inti, Juli–Oktober 2026. Nilai Oktober selaras dengan rekap mapel.</p>
+                  </div>
+                </div>
+                <div class="panel-body">
+                  <div class="chart-box">
+                    <canvas id="chartTrenNilai"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-head">
+                  <div>
+                    <h2>Status Pengumpulan Tugas</h2>
+                    <p class="panel-sub">120 pengumpulan periode berjalan: 91 terkumpul, 17 terlambat, 12 belum.</p>
+                  </div>
+                </div>
+                <div class="panel-body">
+                  <div class="chart-box">
+                    <canvas id="chartDonutPengumpulan"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h2>Siswa Perlu Perhatian</h2>
+                  <p class="panel-sub">Tiga siswa ditandai untuk ditinjau. Ambang nilai yang dikonfigurasi: 70.</p>
+                </div>
+              </div>
+              <div class="panel-body" style="padding-bottom: 0">
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Nama Siswa</th>
+                        <th>Kelas</th>
+                        <th>Nilai Sebelumnya</th>
+                        <th>Nilai Saat Ini</th>
+                        <th>Tugas Belum Dikumpulkan</th>
+                        <th>Alasan Ditandai</th>
+                        <th>Tindak Lanjut</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dashboardPerhatianBody"></tbody>
+                  </table>
+                </div>
+              </div>
+              <p class="panel-note">
+                Penandaan bersifat sementara untuk ditinjau guru, berdasarkan penurunan nilai, nilai di bawah ambang, atau tugas yang belum dikumpulkan. Ini bukan label tetap.
+              </p>
+            </div>
+          </section>
+
+          <!-- 2. Manajemen Tugas -->
+          <section class="page" id="page-tugas">
+            <div class="page-header">
+              <div>
+                <h1>Manajemen Tugas</h1>
+                <p>Kelola tugas, kuis, dan ujian berdasarkan kelas dan mata pelajaran.</p>
+              </div>
+              <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalBuatTugas">
+                <i class="bi bi-plus-lg"></i> Buat Tugas
+              </button>
+            </div>
+            <div class="filter-bar">
+              <div class="search-wrap">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="tugasSearch" type="search" placeholder="Cari judul tugas…" />
+              </div>
+              <select class="form-select" id="tugasFilterKelas"></select>
+              <select class="form-select" id="tugasFilterMapel"></select>
+              <select class="form-select" id="tugasFilterStatus">
+                <option value="">Semua status</option>
+                <option value="Aktif">Aktif</option>
+                <option value="Selesai">Selesai</option>
+                <option value="Dijadwalkan">Dijadwalkan</option>
+              </select>
+            </div>
+            <div class="panel">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Judul Tugas</th>
+                      <th>Mata Pelajaran</th>
+                      <th>Kelas</th>
+                      <th>Tenggat</th>
+                      <th>Jenis Penilaian</th>
+                      <th>Status</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tugasTableBody"></tbody>
+                </table>
+              </div>
+              <div class="table-foot" id="tugasTableFoot"></div>
+            </div>
+          </section>
+
+          <!-- 3. Pengumpulan -->
+          <section class="page" id="page-pengumpulan">
+            <div class="page-header">
+              <div>
+                <h1>Pengumpulan Tugas</h1>
+                <p>Pantau status pengumpulan tugas setiap siswa.</p>
+              </div>
+            </div>
+            <div class="kpi-grid" id="pengumpulanKpi"></div>
+            <div class="filter-bar">
+              <select class="form-select" id="kumpulFilterKelas"></select>
+              <select class="form-select" id="kumpulFilterTugas"></select>
+              <select class="form-select" id="kumpulFilterStatus">
+                <option value="">Semua status</option>
+                <option value="Sudah Dikumpulkan">Sudah Dikumpulkan</option>
+                <option value="Terlambat">Terlambat</option>
+                <option value="Belum Dikumpulkan">Belum Dikumpulkan</option>
+              </select>
+            </div>
+            <div class="panel">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Nama Siswa</th>
+                      <th>NIS</th>
+                      <th>Kelas</th>
+                      <th>Nama Tugas</th>
+                      <th>Jenis Pengumpulan</th>
+                      <th>Tanggal Pengumpulan</th>
+                      <th>Status</th>
+                      <th>Status Penilaian</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="kumpulTableBody"></tbody>
+                </table>
+              </div>
+              <div class="table-foot" id="kumpulTableFoot"></div>
+            </div>
+          </section>
+
+          <!-- 4. Penilaian -->
+          <section class="page" id="page-penilaian">
+            <div class="page-header">
+              <div>
+                <h1>Penilaian Akademik</h1>
+                <p>Kelola penilaian otomatis dan manual dalam satu halaman.</p>
+              </div>
+            </div>
+            <div class="seg-tabs" role="tablist">
+              <button class="seg-btn active" type="button" data-tab="otomatis">Penilaian Otomatis</button>
+              <button class="seg-btn" type="button" data-tab="manual">Penilaian Manual</button>
+            </div>
+
+            <div id="tab-otomatis">
+              <div class="split-2">
+                <div class="panel">
+                  <div class="panel-head"><h2>Daftar Kuis Objektif</h2></div>
+                  <div class="panel-body" style="padding-bottom: 8px">
+                    <div class="table-wrap">
+                      <table class="data-table">
+                        <thead>
+                          <tr>
+                            <th>Nama Kuis</th>
+                            <th>Mapel</th>
+                            <th>Kelas</th>
+                            <th>Jumlah Soal</th>
+                            <th>Jumlah Siswa</th>
+                            <th>Status Penilaian</th>
+                            <th>Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody id="kuisTableBody"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel">
+                  <div class="panel-head">
+                    <h2 id="hasilTitle">Contoh Hasil Penilaian Otomatis</h2>
+                  </div>
+                  <div class="panel-body">
+                    <div class="flow-steps">
+                      <div class="flow-step"><i class="bi bi-pencil-square"></i> Jawaban siswa</div>
+                      <span class="flow-arrow"><i class="bi bi-arrow-right"></i></span>
+                      <div class="flow-step"><i class="bi bi-key"></i> Kunci jawaban</div>
+                      <span class="flow-arrow"><i class="bi bi-arrow-right"></i></span>
+                      <div class="flow-step"><i class="bi bi-calculator"></i> Skor dihitung otomatis</div>
+                    </div>
+                    <div class="score-pills">
+                      <div class="score-chip">
+                        <div class="sc-l">Total soal</div>
+                        <div class="sc-v" id="hasilTotal">20</div>
+                      </div>
+                      <div class="score-chip ok">
+                        <div class="sc-l">Benar</div>
+                        <div class="sc-v" id="hasilBenar">16</div>
+                      </div>
+                      <div class="score-chip bad">
+                        <div class="sc-l">Salah</div>
+                        <div class="sc-v" id="hasilSalah">4</div>
+                      </div>
+                      <div class="score-chip">
+                        <div class="sc-l">Skor</div>
+                        <div class="sc-v" id="hasilSkor">80/100</div>
+                      </div>
+                    </div>
+                    <div id="hasilSoal"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="tab-manual" hidden>
+              <div class="split-2">
+                <div class="panel">
+                  <div class="panel-head"><h2>Penilaian Esai &amp; Tugas Fisik</h2></div>
+                  <div class="panel-body" style="padding-bottom: 8px">
+                    <div class="table-wrap">
+                      <table class="data-table">
+                        <thead>
+                          <tr>
+                            <th>Nama Siswa</th>
+                            <th>Tugas</th>
+                            <th>Skor Maksimal</th>
+                            <th>Nilai</th>
+                            <th>Catatan Guru</th>
+                            <th>Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody id="manualTableBody"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel">
+                  <div class="panel-head"><h2>Form Penilaian Manual</h2></div>
+                  <div class="panel-body">
+                    <form id="formManual" autocomplete="off">
+                      <div class="mb-3">
+                        <label class="form-label" for="manualSiswa">Siswa</label>
+                        <input class="form-control" id="manualSiswa" type="text" readonly />
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label" for="manualTugas">Tugas</label>
+                        <input class="form-control" id="manualTugas" type="text" readonly />
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label" for="manualNilai">Nilai</label>
+                        <input class="form-control" id="manualNilai" type="number" min="0" max="100" placeholder="0–100" />
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label" for="manualCatatan">Catatan guru</label>
+                        <textarea class="form-control" id="manualCatatan" rows="3" placeholder="Umpan balik untuk siswa"></textarea>
+                      </div>
+                      <button class="btn btn-primary" type="submit">Simpan nilai</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="panel-note" style="padding-left: 0; margin-top: 12px">
+              Soal objektif dapat dinilai otomatis berdasarkan kunci jawaban. Penilaian esai dan tugas fisik tetap dilakukan oleh guru.
+            </p>
+          </section>
+
+          <!-- 5. Rekap -->
+          <section class="page" id="page-rekap">
+            <div class="page-header">
+              <div>
+                <h1>Rekap Nilai Akademik</h1>
+                <p>Ringkasan capaian akademik berdasarkan siswa, kelas, dan mata pelajaran.</p>
+              </div>
+              <button class="btn btn-outline-secondary js-demo" type="button">
+                <i class="bi bi-download"></i> Unduh rekap
+              </button>
+            </div>
+            <div class="filter-bar">
+              <select class="form-select" id="rekapFilterSemester"></select>
+              <select class="form-select" id="rekapFilterKelas"></select>
+              <select class="form-select" id="rekapFilterMapel"></select>
+              <div class="search-wrap">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="rekapSearch" type="search" placeholder="Cari nama siswa…" />
+              </div>
+            </div>
+            <div class="split-2 mb-16">
+              <div class="panel">
+                <div class="panel-head"><h2>Rata-rata Nilai per Mata Pelajaran</h2></div>
+                <div class="panel-body">
+                  <div class="chart-box sm">
+                    <canvas id="chartBarMapel"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><h2>Ringkasan Kelas</h2></div>
+                <div class="panel-body">
+                  <p style="font-size: 12.5px; color: var(--muted); margin: 0 0 12px">
+                    Seluruh siswa aktif, semester ganjil 2026/2027.
+                  </p>
+                  <div class="summary-list" id="rekapSummary"></div>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Nama Siswa</th>
+                      <th>Kelas</th>
+                      <th>Nilai Tugas</th>
+                      <th>Nilai Kuis</th>
+                      <th>Nilai Ujian</th>
+                      <th>Nilai Akhir</th>
+                      <th>Tren Nilai</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rekapTableBody"></tbody>
+                </table>
+              </div>
+              <div class="table-foot" id="rekapTableFoot"></div>
+            </div>
+          </section>
+
+          <!-- 6. Analisis -->
+          <section class="page" id="page-analisis">
+            <div class="page-header">
+              <div>
+                <h1>Analisis Performa Akademik</h1>
+                <p>Identifikasi pola perkembangan nilai dan kebutuhan tindak lanjut siswa.</p>
+              </div>
+            </div>
+            <div class="chart-row">
+              <div class="panel">
+                <div class="panel-head"><h2>Tren Nilai Siswa yang Perlu Ditinjau</h2></div>
+                <div class="panel-body">
+                  <div class="chart-box">
+                    <canvas id="chartTrenSiswa"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><h2>Perbandingan Antarmapel</h2></div>
+                <div class="panel-body">
+                  <div class="chart-box">
+                    <canvas id="chartBandingMapel"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="split-equal mb-16">
+              <div class="panel stat-highlight">
+                <div class="sh-label">Siswa perlu ditinjau</div>
+                <div class="sh-num" id="analisisCount">3</div>
+                <div class="sh-desc">Memenuhi satu atau lebih aturan analisis pada periode Oktober 2026.</div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><h2>Aturan Analisis</h2></div>
+                <div class="panel-body">
+                  <ol class="rules-list" id="aturanList"></ol>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h2>Daftar Siswa yang Perlu Ditinjau</h2></div>
+              <div class="panel-body" style="padding-bottom: 0">
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Nama Siswa</th>
+                        <th>Kelas</th>
+                        <th>Rata-rata Nilai</th>
+                        <th>Perubahan Nilai</th>
+                        <th>Tugas Belum Dikumpulkan</th>
+                        <th>Alasan Ditandai</th>
+                        <th>Rekomendasi Tindak Lanjut</th>
+                      </tr>
+                    </thead>
+                    <tbody id="analisisTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+              <p class="panel-note">
+                Ambang batas analisis merupakan parameter yang dapat disesuaikan dengan kebijakan sekolah.
+              </p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Buat Tugas -->
+    <div class="modal fade" id="modalBuatTugas" tabindex="-1" aria-labelledby="modalBuatTugasLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <form id="formBuatTugas" autocomplete="off">
+            <div class="modal-header">
+              <h2 class="modal-title" id="modalBuatTugasLabel">Buat Tugas</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-8">
+                  <label class="form-label" for="ftJudul">Judul tugas</label>
+                  <input class="form-control" id="ftJudul" required placeholder="Contoh: Kuis Pecahan" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="ftJenis">Jenis penilaian</label>
+                  <select class="form-select" id="ftJenis">
+                    <option>Pilihan Ganda</option>
+                    <option>Esai</option>
+                    <option>Tugas Fisik</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="ftDeskripsi">Deskripsi</label>
+                  <textarea class="form-control" id="ftDeskripsi" rows="2" placeholder="Instruksi singkat untuk siswa"></textarea>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="ftMapel">Mata pelajaran</label>
+                  <select class="form-select" id="ftMapel"></select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="ftKelas">Kelas</label>
+                  <select class="form-select" id="ftKelas"></select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="ftTenggat">Tanggal tenggat</label>
+                  <input class="form-control" id="ftTenggat" type="date" value="2026-10-30" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="ftBobot">Bobot nilai (%)</label>
+                  <input class="form-control" id="ftBobot" type="number" min="0" max="100" value="15" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="ftSkor">Skor maksimal</label>
+                  <input class="form-control" id="ftSkor" type="number" min="1" value="100" />
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Batal</button>
+              <button class="btn btn-primary" type="submit">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Detail tugas -->
+    <div class="modal fade" id="modalDetailTugas" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title" id="detailTugasTitle">Detail Tugas</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+          </div>
+          <div class="modal-body">
+            <div class="detail-grid" id="detailTugasBody"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Tutup</button>
+            <button class="btn btn-primary js-demo" type="button">Edit tugas</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Detail pengumpulan -->
+    <div class="modal fade" id="modalDetailKumpul" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title">Detail Pengumpulan</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+          </div>
+          <div class="modal-body">
+            <div class="detail-grid" id="detailKumpulBody"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Tutup</button>
+            <button class="btn btn-primary js-demo" type="button">Buka berkas</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div id="appToast" class="toast" role="status" aria-live="polite">
+        <div class="toast-body d-flex align-items-start gap-2">
+          <i class="bi bi-info-circle text-primary mt-1"></i>
+          <span id="appToastMsg">Mode demonstrasi.</span>
+        </div>
+      </div>
+    </div>
+
+    <script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/chartjs/chart.umd.min.js"></script>
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/charts.js"></script>
+    <script src="assets/js/app.js"></script>
+  </body>
+</html>
