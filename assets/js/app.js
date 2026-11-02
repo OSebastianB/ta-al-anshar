@@ -12,7 +12,14 @@
     pegawai: { title: "Kehadiran Pegawai", crumb: "Absensi / Pegawai" },
     jadwal: { title: "Jadwal Kelas", crumb: "Jadwal / Kelas" },
     "rekap-absensi": { title: "Rekap Absensi", crumb: "Absensi / Rekap" },
-    portal: { title: "Kehadiran Anak", crumb: "Orang Tua / Kehadiran Anak" },
+    portal: { title: "Portal Orang Tua", crumb: "Orang Tua / Portal" },
+    "bayar-anak": { title: "Informasi Pembayaran Anak", crumb: "Orang Tua / Pembayaran" },
+    "bayar-notif-ortu": { title: "Notifikasi Saya", crumb: "Orang Tua / Notifikasi" },
+    "bayar-dashboard": { title: "Dashboard Pembayaran", crumb: "Pembayaran / Dashboard" },
+    "bayar-data": { title: "Data Pembayaran", crumb: "Pembayaran / Data" },
+    "bayar-impor": { title: "Impor CSV Braja", crumb: "Pembayaran / Impor" },
+    "bayar-notifikasi": { title: "Pusat Notifikasi", crumb: "Pembayaran / Notifikasi" },
+    "bayar-riwayat": { title: "Riwayat Pengiriman", crumb: "Pembayaran / Riwayat" },
     "analisis-dashboard": { title: "Dashboard Analisis", crumb: "Analisis / Dashboard" },
     perkembangan: { title: "Perkembangan Nilai", crumb: "Analisis / Perkembangan" },
     peringatan: { title: "Peringatan Dini", crumb: "Analisis / Peringatan Dini" },
@@ -29,7 +36,20 @@
   const ROLE = {
     admin: {
       home: "dashboard",
-      pages: ["dashboard", "absensi", "kehadiran", "pegawai", "jadwal", "rekap-absensi", "rekap"],
+      pages: [
+        "dashboard",
+        "absensi",
+        "kehadiran",
+        "pegawai",
+        "jadwal",
+        "rekap-absensi",
+        "rekap",
+        "bayar-dashboard",
+        "bayar-data",
+        "bayar-impor",
+        "bayar-notifikasi",
+        "bayar-riwayat",
+      ],
       dashLabel: "Dashboard Sekolah",
       dashCrumb: "Administrasi / Dashboard",
       izin: {
@@ -44,6 +64,8 @@
         "simpan-catatan": false,
         "catat-pegawai": true,
         "unduh-rekap": true,
+        "impor-bayar": true,
+        "simulasi-notif": true,
       },
     },
     guru: {
@@ -77,11 +99,13 @@
         "simpan-catatan": true,
         "catat-pegawai": false,
         "unduh-rekap": true,
+        "impor-bayar": false,
+        "simulasi-notif": false,
       },
     },
     orangtua: {
       home: "portal",
-      pages: ["portal"],
+      pages: ["portal", "bayar-anak", "bayar-notif-ortu"],
       dashLabel: "Portal Orang Tua",
       dashCrumb: "Orang Tua / Portal",
       izin: {
@@ -96,6 +120,8 @@
         "simpan-catatan": false,
         "catat-pegawai": false,
         "unduh-rekap": false,
+        "impor-bayar": false,
+        "simulasi-notif": false,
       },
     },
   };
@@ -544,6 +570,15 @@
         tone: "navy",
         hint: D.hariIniNama,
       },
+      {
+        label: "Pembayaran belum lunas",
+        value: (D.pembayaran || []).filter(function (p) {
+          return p.status === "Belum Lunas" || p.status === "Perlu Verifikasi";
+        }).length,
+        icon: "bi-cash-stack",
+        tone: "amber",
+        hint: "dari data impor demo",
+      },
     ]);
     if ($("dashAdminHadirBody")) {
       $("dashAdminHadirBody").innerHTML = D.kelas
@@ -595,6 +630,7 @@
         izinPeg +
         " pegawai tidak hadir penuh hari ini (izin/sakit/alpa).</span></li>" +
         "<li><span class=\"rule-no\">3</span><span>Rekap nilai tersedia dalam mode baca untuk keperluan administrasi.</span></li>" +
+        "<li><span class=\"rule-no\">4</span><span>Modul pembayaran: impor CSV Braja dan notifikasi multi-channel (demo).</span></li>" +
         "</ul>";
     }
   }
@@ -1231,6 +1267,7 @@
     closeMenus();
     if (window.Modul1) Modul1.onShow(page);
     if (window.Modul3) Modul3.onShow(page);
+    if (window.Modul4) Modul4.onShow(page);
     if (page === "dashboard") renderDashboard();
     applyIzinUi();
     requestAnimationFrame(function () {

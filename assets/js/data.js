@@ -690,5 +690,45 @@
     },
   ];
 
+  var statusBayarDemo = {
+    "2024510001": "Lunas",
+    "2024510002": "Lunas",
+    "2024510003": "Belum Lunas",
+    "2024510004": "Perlu Verifikasi",
+    "2024510005": "Belum Lunas",
+  };
+  data.pembayaran = siswa.map(function (s, i) {
+    var status = statusBayarDemo[s.nis] || (i % 5 === 0 ? "Belum Lunas" : i % 7 === 0 ? "Perlu Verifikasi" : "Lunas");
+    return {
+      id: "pay-" + s.nis,
+      nama: s.nama,
+      nis: s.nis,
+      kelas: s.kelas,
+      jenis: "SPP Oktober 2026",
+      jumlah: 350000,
+      status: status,
+      tanggal: status === "Lunas" ? (i % 2 === 0 ? "29 Okt 2026" : "28 Okt 2026") : "—",
+    };
+  });
+  data.pembayaranLog = [
+    { waktu: "29 Okt 2026 09.14", siswa: "Ahmad Fauzan", saluran: "In-App", status: "Terkirim" },
+    { waktu: "29 Okt 2026 09.14", siswa: "Ahmad Fauzan", saluran: "WhatsApp", status: "Mode Demo" },
+    { waktu: "28 Okt 2026 10.22", siswa: "Bagus Setiawan", saluran: "In-App", status: "Terkirim" },
+  ];
+  data.notifOrangtua = [
+    {
+      judul: "Pembaruan informasi pembayaran",
+      isi: "Informasi pembayaran Ahmad Fauzan telah diperbarui. Buka Informasi Pembayaran untuk melihat status terbaru.",
+      waktu: "29 Oktober 2026 · In-App",
+      ikon: "bi-bell",
+    },
+    {
+      judul: "Saluran WhatsApp",
+      isi: "Orang tua dapat menerima pemberitahuan tambahan melalui WhatsApp setelah menyetujui penggunaan nomor kontaknya.",
+      waktu: "Simulasi fitur Multi-Channel",
+      ikon: "bi-whatsapp",
+    },
+  ];
+
   window.APP_DATA = data;
 })();

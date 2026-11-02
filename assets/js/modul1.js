@@ -459,11 +459,21 @@
       " · NIS " +
       anak.nis +
       ". Hanya baca — data anak tertaut saja.";
+    var bayarAnak = (D.pembayaran || []).filter(function (p) {
+      return nisList.indexOf(p.nis) >= 0;
+    })[0];
     var items = [
       ["Kehadiran", String(persen).replace(".", ",") + "%", "bi-percent", "teal", hadir + " dari " + rec.length + " hari"],
       ["Hari ini", hari ? hari.status : "—", "bi-calendar-check", hari && hari.status === "Hadir" ? "teal" : "amber", hari ? hari.waktu : ""],
       ["Rata-rata nilai", String(anak.akhir).replace(".", ","), "bi-bar-chart", "blue", "seluruh mapel"],
       ["Tugas belum", belumTugas, "bi-journal-x", "amber", "dari " + tugasAnak.length + " catatan"],
+      [
+        "Pembayaran",
+        bayarAnak ? bayarAnak.status : "—",
+        "bi-wallet2",
+        bayarAnak && bayarAnak.status === "Lunas" ? "teal" : "amber",
+        bayarAnak ? bayarAnak.jenis : "belum ada data",
+      ],
     ];
     document.getElementById("portalKpi").innerHTML = items
       .map(function (it) {

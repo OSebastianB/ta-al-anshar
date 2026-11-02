@@ -26,6 +26,12 @@
           <button class="nav-item" data-page="portal" data-akses="orangtua" type="button">
             <i class="bi bi-house-heart"></i><span>Portal Orang Tua</span>
           </button>
+          <button class="nav-item" data-page="bayar-anak" data-akses="orangtua" type="button">
+            <i class="bi bi-wallet2"></i><span>Informasi Pembayaran</span>
+          </button>
+          <button class="nav-item" data-page="bayar-notif-ortu" data-akses="orangtua" type="button">
+            <i class="bi bi-bell"></i><span>Notifikasi Saya</span>
+          </button>
           <button class="nav-item" data-page="absensi" data-akses="admin guru" type="button">
             <i class="bi bi-clipboard-check"></i><span>Dashboard Absensi</span>
           </button>
@@ -40,6 +46,21 @@
           </button>
           <button class="nav-item" data-page="rekap-absensi" data-akses="admin guru" type="button">
             <i class="bi bi-bar-chart-line"></i><span>Rekap Absensi</span>
+          </button>
+          <button class="nav-item" data-page="bayar-dashboard" data-akses="admin" type="button">
+            <i class="bi bi-cash-stack"></i><span>Dashboard Pembayaran</span>
+          </button>
+          <button class="nav-item" data-page="bayar-data" data-akses="admin" type="button">
+            <i class="bi bi-receipt"></i><span>Data Pembayaran</span>
+          </button>
+          <button class="nav-item" data-page="bayar-impor" data-akses="admin" type="button">
+            <i class="bi bi-upload"></i><span>Impor CSV Braja</span>
+          </button>
+          <button class="nav-item" data-page="bayar-notifikasi" data-akses="admin" type="button">
+            <i class="bi bi-megaphone"></i><span>Pusat Notifikasi</span>
+          </button>
+          <button class="nav-item" data-page="bayar-riwayat" data-akses="admin" type="button">
+            <i class="bi bi-clock-history"></i><span>Riwayat Pengiriman</span>
           </button>
           <button class="nav-item" data-page="tugas" data-akses="guru" type="button">
             <i class="bi bi-journal-text"></i><span>Manajemen Tugas</span>
@@ -319,6 +340,244 @@
                     <tbody id="portalTugasBody"></tbody>
                   </table>
                 </div>
+              </div>
+            </div>
+            <div class="split-2" style="margin-top:16px">
+              <div class="panel">
+                <div class="panel-head">
+                  <div>
+                    <h2>Informasi Pembayaran</h2>
+                    <p class="panel-sub">Status terbaru dari data yang diimpor sekolah.</p>
+                  </div>
+                  <button class="btn btn-sm btn-outline-secondary" type="button" data-buka="bayar-anak">Rincian</button>
+                </div>
+                <div class="panel-body" id="portalBayarRingkas"></div>
+              </div>
+              <div class="panel">
+                <div class="panel-head">
+                  <div>
+                    <h2>Notifikasi Administrasi</h2>
+                    <p class="panel-sub">Pemberitahuan pembayaran dan portal.</p>
+                  </div>
+                  <button class="btn btn-sm btn-outline-secondary" type="button" data-buka="bayar-notif-ortu">Semua</button>
+                </div>
+                <div class="panel-body">
+                  <div class="bayar-noti">
+                    <div class="kpi-icon blue"><i class="bi bi-bell"></i></div>
+                    <div>
+                      <div class="name-cell">Pembaruan status pembayaran</div>
+                      <p class="panel-sub" style="margin:6px 0">Silakan lihat rincian pembayaran terbaru pada portal.</p>
+                      <div class="nis">29 Oktober 2026</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-bayar-anak">
+            <div class="page-header">
+              <div>
+                <h1>Informasi Pembayaran Anak</h1>
+                <p>Lihat status pembayaran yang telah diperbarui oleh pihak sekolah.</p>
+              </div>
+            </div>
+            <div id="bayarAnakContent"></div>
+          </section>
+
+          <section class="page" id="page-bayar-notif-ortu">
+            <div class="page-header">
+              <div>
+                <h1>Notifikasi Saya</h1>
+                <p>Pemberitahuan administrasi dan informasi pembayaran anak.</p>
+              </div>
+            </div>
+            <div class="panel"><div class="panel-body" id="bayarNotifOrtuList"></div></div>
+          </section>
+
+          <section class="page" id="page-bayar-dashboard">
+            <div class="page-header">
+              <div>
+                <h1>Dashboard Pembayaran</h1>
+                <p>Ringkasan informasi pembayaran siswa dan aktivitas notifikasi.</p>
+              </div>
+              <div class="actions">
+                <button class="btn btn-outline-secondary" type="button" data-buka="bayar-data">Lihat Data</button>
+                <button class="btn btn-primary" type="button" data-buka="bayar-impor" data-izin="impor-bayar"><i class="bi bi-upload"></i> Impor CSV</button>
+              </div>
+            </div>
+            <div class="kpi-grid" id="bayarDashKpi"></div>
+            <div class="split-2">
+              <div class="panel">
+                <div class="panel-head"><div><h2>Ringkasan Status Pembayaran</h2><p class="panel-sub">Perbandingan jumlah status berdasarkan data simulasi.</p></div></div>
+                <div class="panel-body">
+                  <div class="bayar-bars" id="bayarStatusBars"></div>
+                  <div class="bayar-legend"><span><i class="bayar-dot"></i>Jumlah data</span><span>Contoh, bukan data aktual sekolah</span></div>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><div><h2>Saluran Notifikasi</h2><p class="panel-sub">Multi-Channel Rule-Based Notification</p></div></div>
+                <div class="panel-body">
+                  <div class="bayar-channel"><div><strong>In-App Notification</strong><small>Notifikasi dalam portal sekolah</small></div><span class="pill pill-success">Aktif</span></div>
+                  <div class="bayar-channel"><div><strong>WhatsApp via Fonnte</strong><small>Integrasi API pada tahap implementasi</small></div><span class="pill pill-warning">Mode Demo</span></div>
+                  <div class="bayar-notice" style="margin-top:12px">Pengiriman WhatsApp pada mockup ini hanya simulasi. Tidak ada pesan sungguhan yang dikirim.</div>
+                </div>
+              </div>
+            </div>
+            <div class="panel" style="margin-top:16px">
+              <div class="panel-head">
+                <div><h2>Data Pembayaran Terbaru</h2><p class="panel-sub">Ringkasan data siswa</p></div>
+                <button class="btn btn-sm btn-outline-secondary" type="button" data-buka="bayar-data">Lihat Semua</button>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead><tr><th>Nama Siswa</th><th>Kelas</th><th>Jenis Pembayaran</th><th>Nominal</th><th>Status</th><th>Tanggal Bayar</th></tr></thead>
+                  <tbody id="bayarDashBody"></tbody>
+                </table>
+              </div>
+              <div class="table-foot" id="bayarDashFoot"></div>
+            </div>
+          </section>
+
+          <section class="page" id="page-bayar-data">
+            <div class="page-header">
+              <div>
+                <h1>Data Pembayaran Siswa</h1>
+                <p>Kelola informasi pembayaran hasil impor dari aplikasi Braja.</p>
+              </div>
+              <button class="btn btn-primary" type="button" data-buka="bayar-impor" data-izin="impor-bayar"><i class="bi bi-upload"></i> Impor Data CSV</button>
+            </div>
+            <div class="filter-bar">
+              <div class="search-wrap">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="bayarSearch" type="search" placeholder="Cari nama atau NIS…" />
+              </div>
+              <select class="form-select" id="bayarFilterStatus">
+                <option value="">Semua status</option>
+                <option>Lunas</option>
+                <option>Belum Lunas</option>
+                <option>Perlu Verifikasi</option>
+              </select>
+            </div>
+            <div class="panel">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead><tr><th>Nama Siswa</th><th>Kelas</th><th>Jenis Pembayaran</th><th>Nominal</th><th>Status</th><th>Tanggal Bayar</th></tr></thead>
+                  <tbody id="bayarDataBody"></tbody>
+                </table>
+              </div>
+              <div class="table-foot" id="bayarDataFoot"></div>
+            </div>
+            <p class="panel-note">Status pembayaran hanya diperbarui dari data impor yang valid. Sistem ini bukan payment gateway dan tidak membuat tagihan otomatis.</p>
+          </section>
+
+          <section class="page" id="page-bayar-impor">
+            <div class="page-header">
+              <div>
+                <h1>Impor Data Pembayaran CSV</h1>
+                <p>Unggah dan validasi data ekspor Braja sebelum pembaruan informasi pembayaran.</p>
+              </div>
+            </div>
+            <div class="split-2">
+              <div class="panel">
+                <div class="panel-head"><div><h2>Unggah Berkas CSV</h2><p class="panel-sub">Contoh kolom: nis, nama, kelas, jenis, jumlah, status, tanggal_bayar</p></div></div>
+                <div class="panel-body">
+                  <div class="bayar-upload">
+                    <i class="bi bi-cloud-upload" style="font-size:28px;color:var(--accent)"></i>
+                    <div class="name-cell" style="margin-top:8px">Pilih file CSV dari komputer</div>
+                    <p class="panel-sub">Hanya untuk demonstrasi lokal. Tidak diunggah ke server.</p>
+                    <input class="form-control" type="file" accept=".csv,text/csv" id="bayarCsvFile" style="max-width:320px;margin:12px auto 0" />
+                  </div>
+                  <div id="bayarCsvPreview"></div>
+                  <div class="actions" style="margin-top:14px">
+                    <button class="btn btn-outline-secondary" type="button" id="bayarUnduhContoh"><i class="bi bi-download"></i> Unduh Contoh CSV</button>
+                    <button class="btn btn-primary" type="button" id="bayarTerapkanCsv" data-izin="impor-bayar">Validasi &amp; Terapkan Data</button>
+                  </div>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><div><h2>Tahapan Impor</h2><p class="panel-sub">Alur verifikasi sebelum perubahan data</p></div></div>
+                <div class="panel-body">
+                  <ul class="rules-list">
+                    <li><span class="rule-no">1</span><span><b>Unggah file CSV</b> — Berkas hasil ekspor aplikasi Braja</span></li>
+                    <li><span class="rule-no">2</span><span><b>Periksa struktur</b> — Kolom dan format nominal/status diperiksa</span></li>
+                    <li><span class="rule-no">3</span><span><b>Cocokkan identitas</b> — NIS dibandingkan dengan data siswa yang tersedia</span></li>
+                    <li><span class="rule-no">4</span><span><b>Perbarui status</b> — Hanya data valid yang diproses</span></li>
+                    <li><span class="rule-no">5</span><span><b>Buat notifikasi</b> — Perubahan status dapat memicu aturan notifikasi</span></li>
+                  </ul>
+                  <div class="bayar-notice" style="margin-top:12px">Pada implementasi sebenarnya, data bermasalah harus ditahan untuk verifikasi dan setiap impor dicatat dalam riwayat audit.</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-bayar-notifikasi">
+            <div class="page-header">
+              <div>
+                <h1>Pusat Notifikasi</h1>
+                <p>Atur dan tinjau notifikasi pembayaran melalui In-App dan WhatsApp.</p>
+              </div>
+              <button class="btn btn-primary" type="button" id="bayarSimulasiNotif" data-izin="simulasi-notif"><i class="bi bi-play-fill"></i> Simulasi Notifikasi</button>
+            </div>
+            <div class="split-2">
+              <div class="panel">
+                <div class="panel-head"><div><h2>Aturan Notifikasi Pembayaran</h2><p class="panel-sub">Rule-Based Notification berdasarkan status terverifikasi</p></div></div>
+                <div class="panel-body">
+                  <div class="bayar-channel"><div><strong>Status berubah menjadi Lunas</strong><small>Kirim konfirmasi pembayaran ke orang tua</small></div><span class="pill pill-success">Aktif</span></div>
+                  <div class="bayar-channel"><div><strong>Status Belum Lunas</strong><small>Tampilkan informasi status dari data impor</small></div><span class="pill pill-success">Aktif</span></div>
+                  <div class="bayar-channel"><div><strong>Tanggal jatuh tempo tersedia</strong><small>Pengingat hanya jika data sumber memuat tanggal jatuh tempo</small></div><span class="pill pill-success">Aktif</span></div>
+                  <div class="bayar-channel"><div><strong>Data tidak cocok</strong><small>Tahan notifikasi sampai petugas memverifikasi</small></div><span class="pill pill-success">Aktif</span></div>
+                </div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><div><h2>Konfigurasi Saluran</h2><p class="panel-sub">Simulasi pengaturan pengiriman</p></div></div>
+                <div class="panel-body">
+                  <label class="form-check" style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+                    <input class="form-check-input" type="checkbox" checked disabled />
+                    <span>In-App Notification (utama)</span>
+                  </label>
+                  <label class="form-check" style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+                    <input class="form-check-input" type="checkbox" id="bayarWaToggle" checked />
+                    <span>WhatsApp melalui Fonnte (opsional)</span>
+                  </label>
+                  <label class="form-label" for="bayarJenisNotif">Jenis Notifikasi</label>
+                  <select class="form-select" id="bayarJenisNotif">
+                    <option>Perubahan status pembayaran</option>
+                    <option>Pengingat jatuh tempo (jika tersedia)</option>
+                  </select>
+                  <div class="bayar-notice" style="margin-top:14px">Integrasi WhatsApp memerlukan API token, nomor yang valid, persetujuan penerima, serta mekanisme retry. Tidak ada API token yang disimpan dalam mockup.</div>
+                </div>
+              </div>
+            </div>
+            <div class="panel" style="margin-top:16px">
+              <div class="panel-head"><div><h2>Contoh Pesan</h2><p class="panel-sub">Pratinjau isi pesan WhatsApp dan In-App</p></div></div>
+              <div class="panel-body">
+                <div class="bayar-noti">
+                  <div class="kpi-icon teal"><i class="bi bi-whatsapp"></i></div>
+                  <div>
+                    <div class="name-cell">Informasi Pembayaran — SD Islam Al-Anshar</div>
+                    <p class="panel-sub" style="margin:6px 0">Yth. Orang Tua/Wali, terdapat pembaruan informasi pembayaran anak Anda. Silakan masuk ke Portal Orang Tua untuk melihat rincian dan status pembayaran. Terima kasih.</p>
+                    <span class="pill pill-info">Pratinjau</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-bayar-riwayat">
+            <div class="page-header">
+              <div>
+                <h1>Riwayat Pengiriman</h1>
+                <p>Pencatatan aktivitas notifikasi dan status setiap saluran.</p>
+              </div>
+              <button class="btn btn-outline-secondary" type="button" data-buka="bayar-notifikasi">Atur Notifikasi</button>
+            </div>
+            <div class="panel">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead><tr><th>Waktu</th><th>Siswa</th><th>Saluran</th><th>Status</th></tr></thead>
+                  <tbody id="bayarRiwayatBody"></tbody>
+                </table>
               </div>
             </div>
           </section>
@@ -1181,5 +1440,6 @@
     <script src="assets/js/app.js"></script>
     <script src="assets/js/modul1.js"></script>
     <script src="assets/js/modul3.js"></script>
+    <script src="assets/js/modul4.js"></script>
   </body>
 </html>

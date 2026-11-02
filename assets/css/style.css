@@ -1763,3 +1763,149 @@ textarea {
     display: none;
   }
 }
+
+/* ——— Pembayaran (Modul 4) ——— */
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.bayar-bars {
+  height: 170px;
+  display: flex;
+  gap: 15px;
+  align-items: end;
+  padding: 12px 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.bayar-bar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+  gap: 8px;
+  height: 100%;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.bayar-bar {
+  width: 65%;
+  max-width: 42px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, #3568ff, var(--accent));
+}
+
+.bayar-bar.light {
+  background: linear-gradient(180deg, #83b6ff, #75a3e9);
+}
+
+.bayar-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.bayar-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 6px;
+}
+
+.bayar-channel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.bayar-channel:last-child {
+  border-bottom: 0;
+}
+
+.bayar-channel strong {
+  font-size: 13px;
+  color: var(--navy);
+}
+
+.bayar-channel small {
+  display: block;
+  color: var(--muted);
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.bayar-notice {
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  padding: 14px 16px;
+  color: #334e7a;
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.bayar-upload {
+  border: 2px dashed #c8d6ef;
+  border-radius: var(--radius);
+  background: #f8fbff;
+  padding: 28px 20px;
+  text-align: center;
+}
+
+.bayar-receipt {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.bayar-receipt:last-child {
+  border-bottom: 0;
+}
+
+.bayar-receipt-right {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.bayar-noti {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.bayar-noti:last-child {
+  border-bottom: 0;
+}
+
+.bayar-noti .kpi-icon {
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .bayar-bars {
+    height: 140px;
+  }
+
+  .bayar-receipt {
+    flex-direction: column;
+  }
+
+  .bayar-receipt-right {
+    text-align: left;
+  }
+}
