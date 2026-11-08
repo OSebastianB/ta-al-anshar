@@ -1,14 +1,14 @@
 (function (global) {
   const instances = {};
   const COLORS = {
-    navy: "#0F2A4A",
-    accent: "#2563EB",
-    soft: "#DBEAFE",
-    teal: "#0D9488",
-    amber: "#D97706",
-    red: "#DC2626",
-    muted: "#64748B",
-    grid: "#E5E9F0",
+    navy: "#243D2C",
+    accent: "#3D9B4F",
+    soft: "#E8F5EA",
+    teal: "#2F8A55",
+    amber: "#B07A2A",
+    red: "#B34A45",
+    muted: "#5F7264",
+    grid: "#D5E0D7",
   };
 
   function baseOptions() {
@@ -285,7 +285,7 @@
       global.UI && UI.getSiswaPerhatianScoped
         ? UI.getSiswaPerhatianScoped()
         : data.siswaPerhatian;
-    const palette = [COLORS.accent, COLORS.amber, COLORS.teal, "#7C3AED", COLORS.navy, "#DC2626"];
+    const palette = [COLORS.accent, COLORS.amber, COLORS.teal, "#6FA87A", COLORS.navy, COLORS.red];
 
     make(canvasId || "chartTrenSiswa", {
       type: "line",
@@ -473,7 +473,7 @@
           {
             label: "Jumlah catatan",
             data: [st.Hadir, st.Terlambat, st.Izin, st.Sakit, st.Alpa],
-            backgroundColor: [COLORS.teal, COLORS.amber, COLORS.accent, "#64748B", COLORS.red],
+            backgroundColor: [COLORS.teal, COLORS.amber, COLORS.accent, "#7A8F80", COLORS.red],
             borderRadius: 6,
             barThickness: 28,
           },
@@ -636,7 +636,7 @@
       type: "doughnut",
       data: {
         labels: ["Hadir", "Terlambat", "Izin", "Sakit", "Alpa"],
-        datasets: [{ data: [st.Hadir, st.Terlambat, st.Izin, st.Sakit, st.Alpa], backgroundColor: [COLORS.teal, COLORS.amber, COLORS.accent, "#94A3B8", COLORS.red], borderWidth: 0 }],
+        datasets: [{ data: [st.Hadir, st.Terlambat, st.Izin, st.Sakit, st.Alpa], backgroundColor: [COLORS.teal, COLORS.amber, COLORS.accent, "#7A8F80", COLORS.red], borderWidth: 0 }],
       },
       options: {
         responsive: true,
@@ -657,7 +657,7 @@
       type: "doughnut",
       data: {
         labels: ["Hadir", "Terlambat", "Izin", "Sakit", "Alpa"],
-        datasets: [{ data: [st.Hadir, st.Terlambat, st.Izin, st.Sakit, st.Alpa], backgroundColor: [COLORS.teal, COLORS.amber, COLORS.accent, "#94A3B8", COLORS.red], borderWidth: 0 }],
+        datasets: [{ data: [st.Hadir, st.Terlambat, st.Izin, st.Sakit, st.Alpa], backgroundColor: [COLORS.teal, COLORS.amber, COLORS.accent, "#7A8F80", COLORS.red], borderWidth: 0 }],
       },
       options: {
         responsive: true,

@@ -148,6 +148,10 @@
   }
 
   function renderJadwal() {
+    if (window.ModulJadwal && ModulJadwal.render) {
+      ModulJadwal.render();
+      return;
+    }
     var kelas = document.getElementById("jadwalKelas").value || "IV-A";
     var hari = document.getElementById("jadwalHari").value;
     var hariList = hari ? [hari] : D.hariKerja;
@@ -281,8 +285,7 @@
       document.getElementById(id).addEventListener("input", renderKehadiran);
       document.getElementById(id).addEventListener("change", renderKehadiran);
     });
-    document.getElementById("jadwalKelas").addEventListener("change", renderJadwal);
-    document.getElementById("jadwalHari").addEventListener("change", renderJadwal);
+    /* Filter jadwal di-wire oleh ModulJadwal */
     ["rekapAbsenKelas", "rekapAbsenDari", "rekapAbsenSampai"].forEach(function (id) {
       document.getElementById(id).addEventListener("change", function () {
         renderRekapAbsensi();
@@ -369,8 +372,19 @@
       err.hidden = true;
       D.jadwal.push(item);
       modalJadwal.hide();
-      renderJadwal();
-      ui().showToast("Simulasi: jadwal hanya ditambahkan di sesi ini dan tidak disimpan permanen.");
+      try {
+        localStorage.setItem(
+          "ta_jadwal_csp",
+          JSON.stringify({
+            jadwal: D.jadwal,
+            status: (D.penjadwalan && D.penjadwalan.meta && D.penjadwalan.meta.status) || "Belum Dibuat",
+            lastResult: (D.penjadwalan && D.penjadwalan.meta && D.penjadwalan.meta.lastResult) || null,
+          })
+        );
+      } catch (err) {}
+      if (window.ModulJadwal && ModulJadwal.render) ModulJadwal.render();
+      else renderJadwal();
+      ui().showToast("Simulasi: jadwal ditambahkan setelah lolos cek bentrok.");
     });
     document.body.addEventListener("click", function (e) {
       var btn = e.target.closest("[data-aksi='detail-hadir']");
@@ -557,7 +571,7 @@
     if (page === "absensi") renderDashboard();
     if (page === "kehadiran") renderKehadiran();
     if (page === "pegawai") renderPegawai();
-    if (page === "jadwal") renderJadwal();
+    /* Halaman jadwal digarap ModulJadwal (CSP); renderJadwal tetap ada untuk form tambah manual */
     if (page === "rekap-absensi") renderRekapAbsensi();
     if (page === "portal") renderPortal();
   }

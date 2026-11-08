@@ -42,7 +42,7 @@
             <i class="bi bi-person-badge"></i><span>Kehadiran Pegawai</span>
           </button>
           <button class="nav-item" data-page="jadwal" data-akses="admin guru" type="button">
-            <i class="bi bi-calendar-week"></i><span>Jadwal Kelas</span>
+            <i class="bi bi-calendar-week"></i><span>Jadwal Pembelajaran</span>
           </button>
           <button class="nav-item" data-page="rekap-absensi" data-akses="admin guru" type="button">
             <i class="bi bi-bar-chart-line"></i><span>Rekap Absensi</span>
@@ -133,7 +133,7 @@
                   <span class="p-name" id="profilNama">Bu Ratna Sari</span>
                   <span class="p-role" id="profilPeran">Guru / Wali Kelas</span>
                 </span>
-                <i class="bi bi-chevron-down" style="font-size: 12px; color: #64748b"></i>
+                <i class="bi bi-chevron-down" style="font-size: 12px; color: #5f7264"></i>
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><h6 class="dropdown-header">Simulasi role (RBAC)</h6></li>
@@ -218,21 +218,146 @@
           <section class="page" id="page-jadwal">
             <div class="page-header">
               <div>
-                <h1>Jadwal Kelas</h1>
-                <p>Slot mingguan memuat mata pelajaran, jam, guru, dan ruang.</p>
+                <h1>Jadwal Pembelajaran</h1>
+                <p id="jadwalPageSub">Pengelolaan dan penyusunan jadwal pembelajaran secara otomatis.</p>
               </div>
-              <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalJadwal" data-izin="tambah-jadwal"><i class="bi bi-plus-lg"></i> Tambah Jadwal</button>
+              <div class="page-header-actions">
+                <button class="btn btn-primary" type="button" id="btnGenerateJadwal" data-izin="generate-jadwal" data-izin-jadwal="generate-jadwal"><i class="bi bi-magic"></i> Generate Jadwal Otomatis</button>
+                <button class="btn btn-outline-secondary" type="button" id="btnAturPenjadwalan" data-izin="atur-penjadwalan" data-izin-jadwal="atur-penjadwalan"><i class="bi bi-sliders"></i> Atur Data Penjadwalan</button>
+                <button class="btn btn-outline-secondary" type="button" id="btnResetJadwal" data-izin="generate-jadwal" data-izin-jadwal="generate-jadwal"><i class="bi bi-arrow-counterclockwise"></i> Reset Jadwal</button>
+                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalJadwal" data-izin="tambah-jadwal"><i class="bi bi-plus-lg"></i> Tambah Manual</button>
+              </div>
             </div>
-            <div class="filter-bar">
-              <select class="form-select" id="jadwalKelas"></select>
-              <select class="form-select" id="jadwalHari"></select>
+
+            <div class="kpi-grid kpi-grid-5" id="jadwalKpi"></div>
+
+            <div id="jadwalLoading" class="jadwal-loading" hidden>
+              <div class="jadwal-loading-card">
+                <div class="spinner-border text-success" role="status" aria-hidden="true"></div>
+                <div>
+                  <strong>Menyusun jadwal dengan CSP + Backtracking…</strong>
+                  <div class="panel-sub">Memeriksa hard constraints guru, kelas, ketersediaan, dan alokasi jam.</div>
+                </div>
+              </div>
             </div>
-            <div class="panel">
-              <div class="table-wrap">
-                <table class="data-table jadwal-table">
-                  <thead id="jadwalHead"></thead>
-                  <tbody id="jadwalBody"></tbody>
-                </table>
+
+            <div class="seg-tabs" style="margin-top:4px">
+              <button class="seg-btn active" type="button" data-tab="hasil">Hasil Jadwal</button>
+              <button class="seg-btn" type="button" data-tab="atur" id="jadwalTabAtur">Pengaturan Data</button>
+              <button class="seg-btn" type="button" data-tab="validasi" id="jadwalTabValidasi">Laporan Validasi</button>
+            </div>
+
+            <div id="jadwal-panel-hasil">
+              <div class="filter-bar">
+                <select class="form-select" id="jadwalViewMode" title="Mode tampilan">
+                  <option value="kelas">Lihat per kelas</option>
+                  <option value="guru">Lihat per guru</option>
+                </select>
+                <select class="form-select" id="jadwalKelas"></select>
+                <select class="form-select" id="jadwalHari"></select>
+                <select class="form-select" id="jadwalFilterGuru"></select>
+                <select class="form-select" id="jadwalFilterMapel"></select>
+                <button class="btn btn-outline-secondary" type="button" id="btnCetakJadwal"><i class="bi bi-printer"></i> Cetak</button>
+                <button class="btn btn-outline-secondary" type="button" id="btnExportJadwal" data-izin="unduh-rekap"><i class="bi bi-download"></i> Ekspor CSV</button>
+              </div>
+              <div class="panel" id="panelCetakJadwal">
+                <div class="panel-head">
+                  <div>
+                    <h2>Tabel Jadwal Mingguan</h2>
+                    <p class="panel-sub">Hasil penempatan sesi pada domain hari dan slot pembelajaran.</p>
+                  </div>
+                </div>
+                <div class="table-wrap">
+                  <table class="data-table jadwal-table">
+                    <thead id="jadwalHead"></thead>
+                    <tbody id="jadwalBody"></tbody>
+                  </table>
+                </div>
+                <div class="table-foot" id="jadwalHasilFoot"></div>
+              </div>
+            </div>
+
+            <div id="jadwal-panel-atur" hidden>
+              <div class="panel" style="margin-bottom:16px">
+                <div class="panel-head">
+                  <div>
+                    <h2>1. Data Mata Pelajaran</h2>
+                    <p class="panel-sub">Kode, jam per minggu, guru pengampu, dan kelas terkait.</p>
+                  </div>
+                  <button class="btn btn-sm btn-primary" type="button" id="btnTambahMapel" data-izin-jadwal="atur-penjadwalan"><i class="bi bi-plus-lg"></i> Tambah</button>
+                </div>
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr><th>Mata Pelajaran</th><th>Kode</th><th>Jam/Minggu</th><th>Guru Pengampu</th><th>Kelas</th><th>Aksi</th></tr>
+                    </thead>
+                    <tbody id="jadwalMapelBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="panel" style="margin-bottom:16px">
+                <div class="panel-head">
+                  <div>
+                    <h2>2. Data Guru</h2>
+                    <p class="panel-sub">Ketersediaan mengajar dan batas jam per hari menjadi constraint CSP.</p>
+                  </div>
+                </div>
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr><th>Nama Guru</th><th>Mapel</th><th>Kelas</th><th>Ketersediaan</th><th>Maks/Hari</th><th>Aksi</th></tr>
+                    </thead>
+                    <tbody id="jadwalGuruBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="panel" style="margin-bottom:16px">
+                <div class="panel-head">
+                  <div>
+                    <h2>3. Pengaturan Waktu Pembelajaran</h2>
+                    <p class="panel-sub" id="jadwalWaktuInfo">Senin–Jumat · slot pelajaran dan istirahat.</p>
+                  </div>
+                </div>
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr><th>Label</th><th>Mulai</th><th>Selesai</th><th>Jenis</th></tr>
+                    </thead>
+                    <tbody id="jadwalWaktuBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <div>
+                    <h2>4. Alokasi Jam Pelajaran</h2>
+                    <p class="panel-sub">Input jumlah sesi tiap mapel per kelas — menjadi variabel CSP.</p>
+                  </div>
+                  <button class="btn btn-sm btn-primary" type="button" id="btnSimpanAlokasi" data-izin-jadwal="atur-penjadwalan">Simpan alokasi</button>
+                </div>
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr><th>Kelas</th><th>Mata Pelajaran</th><th>Kode</th><th>Guru</th><th>Jam/Minggu</th></tr>
+                    </thead>
+                    <tbody id="jadwalAlokasiBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div id="jadwal-panel-validasi" hidden>
+              <div class="panel">
+                <div class="panel-head">
+                  <div>
+                    <h2>Hasil Validasi Algoritma</h2>
+                    <p class="panel-sub">Statistik berasal dari proses Backtracking aktual, bukan angka statis.</p>
+                  </div>
+                </div>
+                <div class="panel-body" id="jadwalValidasiBox"></div>
               </div>
             </div>
           </section>
@@ -1437,8 +1562,89 @@
       </div>
     </div>
 
+    <div class="modal fade" id="modalEditJadwal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form id="formEditJadwal" autocomplete="off">
+            <div class="modal-header">
+              <h2 class="modal-title">Edit Jadwal Manual</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-6"><label class="form-label" for="feKelas">Kelas</label><select class="form-select" id="feKelas"></select></div>
+                <div class="col-md-6"><label class="form-label" for="feHari">Hari</label><select class="form-select" id="feHari"></select></div>
+                <div class="col-md-6"><label class="form-label" for="feSlot">Slot waktu</label><select class="form-select" id="feSlot"></select></div>
+                <div class="col-md-6"><label class="form-label" for="feMapel">Mata pelajaran</label><select class="form-select" id="feMapel"></select></div>
+                <div class="col-md-6"><label class="form-label" for="feGuru">Guru</label><input class="form-control" id="feGuru" type="text" /></div>
+                <div class="col-md-6"><label class="form-label" for="feRuang">Ruang</label><input class="form-control" id="feRuang" type="text" /></div>
+              </div>
+              <p class="form-error" id="jadwalEditError" hidden></p>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Batal</button>
+              <button class="btn btn-primary" type="submit">Simpan perubahan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalMapelJadwal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form id="formMapelJadwal" autocomplete="off">
+            <div class="modal-header">
+              <h2 class="modal-title" id="modalMapelTitle">Mata Pelajaran</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-4"><label class="form-label" for="fmKode">Kode</label><input class="form-control" id="fmKode" maxlength="8" /></div>
+                <div class="col-md-8"><label class="form-label" for="fmNama">Nama mapel</label><input class="form-control" id="fmNama" /></div>
+                <div class="col-md-6"><label class="form-label" for="fmJam">Jam per minggu</label><input class="form-control" id="fmJam" type="number" min="0" max="10" /></div>
+              </div>
+              <p class="form-error" id="jadwalMapelError" hidden></p>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Batal</button>
+              <button class="btn btn-primary" type="submit">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalAvailGuru" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <form id="formAvailGuru" autocomplete="off">
+            <div class="modal-header">
+              <h2 class="modal-title">Ketersediaan Guru</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" id="availGuruId" />
+              <p class="panel-sub" style="margin-bottom:12px">Guru: <strong id="availGuruNama"></strong></p>
+              <div class="mb-3" style="max-width:200px">
+                <label class="form-label" for="availMaxJam">Maksimal jam / hari</label>
+                <input class="form-control" id="availMaxJam" type="number" min="1" max="8" />
+              </div>
+              <div id="availGrid" class="avail-grid"></div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Batal</button>
+              <button class="btn btn-primary" type="submit">Simpan ketersediaan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="assets/js/csp-scheduler.js"></script>
     <script src="assets/js/app.js"></script>
     <script src="assets/js/modul1.js"></script>
+    <script src="assets/js/modul-jadwal.js"></script>
     <script src="assets/js/modul3.js"></script>
     <script src="assets/js/modul4.js"></script>
   </body>

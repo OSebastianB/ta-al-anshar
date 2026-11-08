@@ -18,6 +18,7 @@
     ["07.40", "08.20"],
     ["08.35", "09.15"],
     ["09.15", "09.55"],
+    ["10.10", "10.50"],
   ];
   var HARI_NAMA = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
   var BULAN = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
@@ -729,6 +730,146 @@
       ikon: "bi-whatsapp",
     },
   ];
+
+  /* ——— Seed penjadwalan CSP (Modul Jadwal Otomatis) ——— */
+  var SLOT_AJAR = [
+    { id: 1, mulai: "07.00", selesai: "07.40", jenis: "pelajaran", label: "Slot 1" },
+    { id: 2, mulai: "07.40", selesai: "08.20", jenis: "pelajaran", label: "Slot 2" },
+    { id: 3, mulai: "08.20", selesai: "08.35", jenis: "istirahat", label: "Istirahat 1" },
+    { id: 4, mulai: "08.35", selesai: "09.15", jenis: "pelajaran", label: "Slot 3" },
+    { id: 5, mulai: "09.15", selesai: "09.55", jenis: "pelajaran", label: "Slot 4" },
+    { id: 6, mulai: "09.55", selesai: "10.10", jenis: "istirahat", label: "Istirahat 2" },
+    { id: 7, mulai: "10.10", selesai: "10.50", jenis: "pelajaran", label: "Slot 5" },
+  ];
+  var HARI_AJAR = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"];
+  var KELAS_JADWAL = KELAS.slice();
+  function semuaSlotAjar() {
+    return SLOT_AJAR.filter(function (s) {
+      return s.jenis === "pelajaran";
+    }).map(function (s) {
+      return s.id;
+    });
+  }
+  function ketersediaanPenuh() {
+    var out = {};
+    HARI_AJAR.forEach(function (h) {
+      out[h] = semuaSlotAjar().slice();
+    });
+    return out;
+  }
+  var guruPenjadwalan = [
+    {
+      id: "g-mtk",
+      nama: "Bu Ratna Sari",
+      mapel: ["Matematika"],
+      kelas: ["IV-A", "IV-B", "V-A"],
+      maxJamPerHari: 4,
+      ketersediaan: ketersediaanPenuh(),
+    },
+    {
+      id: "g-mtk2",
+      nama: "Pak Andi Saputra",
+      mapel: ["Matematika"],
+      kelas: ["V-B", "VI-A"],
+      maxJamPerHari: 4,
+      ketersediaan: ketersediaanPenuh(),
+    },
+    {
+      id: "g-bin",
+      nama: "Bu Lestari Aminah",
+      mapel: ["Bahasa Indonesia"],
+      kelas: ["IV-A", "IV-B", "V-A"],
+      maxJamPerHari: 4,
+      ketersediaan: ketersediaanPenuh(),
+    },
+    {
+      id: "g-bin2",
+      nama: "Bu Maya Kusuma",
+      mapel: ["Bahasa Indonesia"],
+      kelas: ["V-B", "VI-A"],
+      maxJamPerHari: 4,
+      ketersediaan: ketersediaanPenuh(),
+    },
+    {
+      id: "g-ipa",
+      nama: "Pak Hendra Wijaya",
+      mapel: ["IPA"],
+      kelas: KELAS_JADWAL.slice(),
+      maxJamPerHari: 4,
+      ketersediaan: ketersediaanPenuh(),
+    },
+    {
+      id: "g-ips",
+      nama: "Bu Sari Indah",
+      mapel: ["IPS"],
+      kelas: KELAS_JADWAL.slice(),
+      maxJamPerHari: 3,
+      ketersediaan: ketersediaanPenuh(),
+    },
+    {
+      id: "g-pai",
+      nama: "Pak Yusuf Hakim",
+      mapel: ["Pendidikan Agama Islam"],
+      kelas: KELAS_JADWAL.slice(),
+      maxJamPerHari: 3,
+      ketersediaan: ketersediaanPenuh(),
+    },
+    {
+      id: "g-ppkn",
+      nama: "Bu Dewi Kartika",
+      mapel: ["PPKn"],
+      kelas: KELAS_JADWAL.slice(),
+      maxJamPerHari: 3,
+      ketersediaan: ketersediaanPenuh(),
+    },
+  ];
+  /* Sedikit batasi ketersediaan agar constraint terasa, tetap solvable */
+  guruPenjadwalan[0].ketersediaan.Jumat = [1, 2, 4, 5];
+  guruPenjadwalan[4].ketersediaan.Rabu = [1, 2, 4, 5, 7];
+
+  var mapelPenjadwalan = [
+    { kode: "MTK", nama: "Matematika", jamPerMinggu: 4 },
+    { kode: "BIN", nama: "Bahasa Indonesia", jamPerMinggu: 4 },
+    { kode: "IPA", nama: "IPA", jamPerMinggu: 3 },
+    { kode: "IPS", nama: "IPS", jamPerMinggu: 2 },
+    { kode: "PAI", nama: "Pendidikan Agama Islam", jamPerMinggu: 3 },
+    { kode: "PPKN", nama: "PPKn", jamPerMinggu: 2 },
+  ];
+
+  function guruUntuk(mapel, kelas) {
+    return guruPenjadwalan.filter(function (g) {
+      return g.mapel.indexOf(mapel) >= 0 && g.kelas.indexOf(kelas) >= 0;
+    })[0];
+  }
+
+  var alokasiPenjadwalan = [];
+  KELAS_JADWAL.forEach(function (kelas) {
+    mapelPenjadwalan.forEach(function (m) {
+      var g = guruUntuk(m.nama, kelas);
+      if (!g) return;
+      alokasiPenjadwalan.push({
+        id: "alok-" + kelas + "-" + m.kode,
+        kelas: kelas,
+        mapel: m.nama,
+        kode: m.kode,
+        jamPerMinggu: m.jamPerMinggu,
+        guruId: g.id,
+        guru: g.nama,
+      });
+    });
+  });
+
+  data.penjadwalan = {
+    kelas: KELAS_JADWAL.slice(),
+    mapel: mapelPenjadwalan,
+    guru: guruPenjadwalan,
+    waktu: { hari: HARI_AJAR.slice(), slots: SLOT_AJAR, durasiMenit: 40 },
+    alokasi: alokasiPenjadwalan,
+    meta: {
+      status: "Belum Dibuat",
+      lastResult: null,
+    },
+  };
 
   window.APP_DATA = data;
 })();

@@ -10,7 +10,7 @@
     absensi: { title: "Dashboard Absensi", crumb: "Absensi / Dashboard" },
     kehadiran: { title: "Kehadiran Siswa", crumb: "Absensi / Siswa" },
     pegawai: { title: "Kehadiran Pegawai", crumb: "Absensi / Pegawai" },
-    jadwal: { title: "Jadwal Kelas", crumb: "Jadwal / Kelas" },
+    jadwal: { title: "Jadwal Pembelajaran", crumb: "Jadwal / Pembelajaran" },
     "rekap-absensi": { title: "Rekap Absensi", crumb: "Absensi / Rekap" },
     portal: { title: "Portal Orang Tua", crumb: "Orang Tua / Portal" },
     "bayar-anak": { title: "Informasi Pembayaran Anak", crumb: "Orang Tua / Pembayaran" },
@@ -55,6 +55,8 @@
       izin: {
         "catat-hadir": true,
         "tambah-jadwal": true,
+        "generate-jadwal": true,
+        "atur-penjadwalan": true,
         "buat-tugas": false,
         "edit-tugas": false,
         "terima-kumpul": false,
@@ -90,6 +92,8 @@
       izin: {
         "catat-hadir": true,
         "tambah-jadwal": false,
+        "generate-jadwal": false,
+        "atur-penjadwalan": false,
         "buat-tugas": true,
         "edit-tugas": true,
         "terima-kumpul": true,
@@ -111,6 +115,8 @@
       izin: {
         "catat-hadir": false,
         "tambah-jadwal": false,
+        "generate-jadwal": false,
+        "atur-penjadwalan": false,
         "buat-tugas": false,
         "edit-tugas": false,
         "terima-kumpul": false,
@@ -1213,6 +1219,7 @@
       .join("");
     applyScopeFilters();
     applyIzinUi();
+    if (window.ModulJadwal && ModulJadwal.onRoleChange) ModulJadwal.onRoleChange();
     if ($("tugasFilterKelas")) {
       renderDashboard();
       renderTugas();
@@ -1266,6 +1273,7 @@
     closeSidebar();
     closeMenus();
     if (window.Modul1) Modul1.onShow(page);
+    if (window.ModulJadwal) ModulJadwal.onShow(page);
     if (window.Modul3) Modul3.onShow(page);
     if (window.Modul4) Modul4.onShow(page);
     if (page === "dashboard") renderDashboard();
