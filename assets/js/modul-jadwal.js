@@ -124,22 +124,13 @@
   }
 
   function renderRingkasan() {
-    var meta = cfg().meta || {};
-    var status = meta.status || "Belum Dibuat";
     var terisi = (D.jadwal || []).length;
-    var statusPill =
-      status === "Berhasil Digenerate"
-        ? ui().pill("success", status)
-        : status.indexOf("Gagal") >= 0
-          ? ui().pill("danger", status)
-          : ui().pill("muted", status);
 
     document.getElementById("jadwalKpi").innerHTML = [
       ["Total kelas", (cfg().kelas || []).length, "bi-building", "navy", "penjadwalan"],
       ["Total guru", (cfg().guru || []).length, "bi-person-workspace", "blue", "pengampu"],
       ["Mata pelajaran", (cfg().mapel || []).length, "bi-journal-bookmark", "teal", "kurikulum"],
       ["Slot terisi", terisi, "bi-calendar2-check", "amber", "dari " + totalSesiNeed() + " kebutuhan"],
-      ["Status jadwal", statusPill, "bi-shield-check", "navy", "CSP + Backtracking"],
     ]
       .map(function (it) {
         var val =
