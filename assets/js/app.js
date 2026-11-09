@@ -645,17 +645,16 @@
     var jadwalHari = D.jadwal.filter(function (j) {
       return j.hari === D.hariIniNama;
     });
-    if ($("dashboardJudul")) $("dashboardJudul").textContent = "Dashboard Sekolah";
+    if ($("dashboardJudul")) $("dashboardJudul").textContent = "Dashboard";
     if ($("dashboardSub")) {
-      $("dashboardSub").textContent =
-        "Ringkasan operasional sekolah untuk administrasi. Data contoh semester ganjil 2026/2027.";
+      $("dashboardSub").textContent = "Pantau aktivitas dan perkembangan sekolah dalam satu tempat.";
     }
     $("dashboardKpi").innerHTML = kpiHtml([
-      { label: "Total Siswa", value: k.siswaAktif, icon: "bi-people", tone: "navy", hint: "lima kelas contoh" },
-      { label: "Total Guru", value: Object.keys(D.guruMap).length, icon: "bi-person-workspace", tone: "blue", hint: "mapel aktif" },
-      { label: "Total Kelas", value: D.kelas.length, icon: "bi-building", tone: "teal", hint: "IV–VI" },
+      { label: "Total Siswa", value: k.siswaAktif, icon: "bi-people", tone: "blue", hint: "+12 siswa baru" },
+      { label: "Total Guru", value: Object.keys(D.guruMap).length, icon: "bi-person-workspace", tone: "purple", hint: "+2 guru baru" },
+      { label: "Total Kelas", value: D.kelas.length, icon: "bi-building", tone: "amber", hint: "Kelas IV–VI" },
       {
-        label: "Kehadiran siswa",
+        label: "Kehadiran Hari Ini",
         value: String(persenHadirDari(hadirHari)).replace(".", ",") + "%",
         icon: "bi-clipboard-check",
         tone: "teal",
@@ -665,7 +664,7 @@
         label: "Kehadiran pegawai",
         value: pegHadir + "/" + (pegHari.length || D.pegawai.length),
         icon: "bi-person-badge",
-        tone: "amber",
+        tone: "navy",
         hint: "hari ini",
       },
       {
@@ -753,10 +752,10 @@
     var totalWali = D.siswa.filter(function (s) {
       return s.kelas === SCOPE_GURU.waliKelas;
     }).length;
-    if ($("dashboardJudul")) $("dashboardJudul").textContent = "Dashboard Akademik Guru";
+    if ($("dashboardJudul")) $("dashboardJudul").textContent = "Dashboard";
     if ($("dashboardSub")) {
       $("dashboardSub").textContent =
-        "Cakupan demo: mapel " + SCOPE_GURU.mapel + " · wali kelas " + SCOPE_GURU.waliKelas + ".";
+        "Pantau aktivitas akademik · mapel " + SCOPE_GURU.mapel + " · wali " + SCOPE_GURU.waliKelas + ".";
     }
     if ($("dashTrenTitle")) $("dashTrenTitle").textContent = "Perkembangan Nilai · " + SCOPE_GURU.mapel;
     if ($("dashTrenSub")) {
@@ -812,10 +811,25 @@
     }
   }
 
+  function updateWelcomeBanner(namaTampil) {
+    if ($("welcomeTitle")) {
+      $("welcomeTitle").textContent = "Assalamu'alaikum, " + (namaTampil || "Pengguna");
+    }
+    if ($("welcomeSub")) {
+      $("welcomeSub").textContent =
+        "Berikut ringkasan aktivitas sekolah hari ini, " + D.hariIniNama + ", " + D.hariIniLabel + ".";
+    }
+    if ($("dashboardDateChip")) {
+      $("dashboardDateChip").textContent = D.hariIniNama + ", " + D.hariIniLabel;
+    }
+  }
+
   function renderDashboard() {
     applyRoleWidgets();
     if (peranAktif === "admin") renderAdminDashboard();
     else if (peranAktif === "guru") renderGuruDashboard();
+    var profil = PROFIL_PERAN[peranAktif];
+    if (profil) updateWelcomeBanner(profil.nama);
     var pg = getPengumpulanRingkas();
     var sub = document.getElementById("donutSub");
     if (sub) {
@@ -1293,6 +1307,10 @@
       var allowed = !raw || raw.split(/\s+/).indexOf(peran) >= 0;
       btn.hidden = !allowed || ROLE[peran].pages.indexOf(btn.dataset.page) < 0;
     });
+    document.querySelectorAll("[data-nav-group]").forEach(function (group) {
+      var visible = group.querySelectorAll(".nav-item:not([hidden])").length > 0;
+      group.hidden = !visible;
+    });
     var anak = siswaOrangtua()[0];
     var catatan = {
       admin: [
@@ -1375,7 +1393,7 @@
       el.classList.toggle("active", el.dataset.page === page);
     });
     $("crumbTitle").textContent = PAGES[page].title;
-    $("crumbPath").textContent = PAGES[page].crumb;
+    $("crumbPath").textContent = "Sistem Informasi > " + PAGES[page].title;
     if (location.hash.slice(1) !== page) {
       history.replaceState(null, "", "#" + page);
     }

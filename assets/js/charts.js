@@ -1,14 +1,14 @@
 (function (global) {
   const instances = {};
   const COLORS = {
-    navy: "#243D2C",
-    accent: "#3D9B4F",
-    soft: "#E8F5EA",
-    teal: "#2F8A55",
-    amber: "#B07A2A",
-    red: "#B34A45",
-    muted: "#5F7264",
-    grid: "#D5E0D7",
+    navy: "#193B67",
+    accent: "#3978C6",
+    soft: "#EAF2FC",
+    teal: "#27AE60",
+    amber: "#F4A640",
+    red: "#EB5757",
+    muted: "#718096",
+    grid: "#E4EAF2",
   };
 
   function baseOptions() {
