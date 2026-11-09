@@ -12,8 +12,51 @@
     <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="assets/css/style.css" />
   </head>
-  <body>
-    <div class="app-shell">
+  <body class="is-login">
+    <div class="login-screen" id="loginScreen">
+      <div class="login-shell">
+        <main class="login-form-panel">
+          <form class="login-card" id="formLogin" autocomplete="on" novalidate>
+            <div class="login-card-head">
+              <div class="brand-mark login-logo-sm"><small>الأنصار</small>AA</div>
+              <h2>Masuk ke Sistem</h2>
+              <p>SD Islam Al-Anshar · Kota Bekasi</p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="loginEmail">Username / Email</label>
+              <div class="login-input-wrap">
+                <i class="bi bi-envelope"></i>
+                <input class="form-control" id="loginEmail" type="email" name="email" placeholder="nama@alanshar.sch.id" required />
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="loginPassword">Password</label>
+              <div class="login-input-wrap">
+                <i class="bi bi-lock"></i>
+                <input class="form-control" id="loginPassword" type="password" name="password" placeholder="Masukkan password" required />
+                <button class="login-eye" type="button" id="togglePassword" aria-label="Tampilkan password">
+                  <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                </button>
+              </div>
+            </div>
+            <div class="login-row">
+              <label class="login-check">
+                <input type="checkbox" id="loginRemember" />
+                <span>Ingat saya</span>
+              </label>
+              <button class="btn-ghost" type="button" id="btnForgotPassword">Lupa password?</button>
+            </div>
+            <p class="form-error" id="loginError" hidden></p>
+            <button class="btn btn-primary login-submit" type="submit">
+              <i class="bi bi-box-arrow-in-right"></i> Login
+            </button>
+            <p class="login-school-foot">SD Islam Al-Anshar · Sistem Terintegrasi · Mockup Frontend</p>
+          </form>
+        </main>
+      </div>
+    </div>
+
+    <div class="app-shell" id="appShell" hidden>
       <aside class="app-sidebar" id="sidebar">
         <div class="sidebar-brand">
           <div class="brand-mark"><small>الأنصار</small>AA</div>
@@ -199,7 +242,7 @@
                 <li><button class="dropdown-item" type="button" data-ganti-peran="kepsek">Kepala Sekolah</button></li>
                 <li><button class="dropdown-item" type="button" data-ganti-peran="orangtua">Orang Tua</button></li>
                 <li><hr class="dropdown-divider" /></li>
-                <li><button class="dropdown-item js-demo" type="button">Keluar</button></li>
+                <li><button class="dropdown-item" type="button" id="btnLogout" data-logout>Keluar</button></li>
               </ul>
             </div>
           </div>

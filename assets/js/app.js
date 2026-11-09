@@ -41,6 +41,13 @@
   let currentPage = "dashboard";
   let peranAktif = "guru";
   const SCOPE_GURU = D.peranContoh.guru;
+  const AUTH_KEY = "ta_demo_session";
+  const REMEMBER_KEY = "ta_demo_remember_email";
+  const DUMMY_ACCOUNTS = {
+    "admin@alanshar.sch.id": { peran: "admin", password: "password123" },
+    "guru@alanshar.sch.id": { peran: "guru", password: "password123" },
+    "orangtua@alanshar.sch.id": { peran: "orangtua", password: "password123" },
+  };
   const ROLE = {
     admin: {
       home: "dashboard",
@@ -1566,6 +1573,13 @@
         closeMenus();
         return;
       }
+      const logoutBtn = e.target.closest("[data-logout]");
+      if (logoutBtn) {
+        e.preventDefault();
+        closeMenus();
+        logoutDemo();
+        return;
+      }
       const demo = e.target.closest(".js-demo");
       if (demo) {
         e.preventDefault();
@@ -1673,6 +1687,141 @@
     applyScopeFilters();
   }
 
+  function getSession() {
+    try {
+      var raw = localStorage.getItem(AUTH_KEY);
+      if (!raw) return null;
+      var s = JSON.parse(raw);
+      if (!s || !s.peran || !ROLE[s.peran]) return null;
+      return s;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function setSession(email, peran, remember) {
+    try {
+      localStorage.setItem(
+        AUTH_KEY,
+        JSON.stringify({
+          email: email,
+          peran: peran,
+          at: Date.now(),
+        })
+      );
+      localStorage.setItem("ta_demo_peran", peran);
+      if (remember) localStorage.setItem(REMEMBER_KEY, email);
+      else localStorage.removeItem(REMEMBER_KEY);
+    } catch (e) {}
+  }
+
+  function clearSession() {
+    try {
+      localStorage.removeItem(AUTH_KEY);
+    } catch (e) {}
+  }
+
+  function showLoginScreen(opts) {
+    opts = opts || {};
+    document.body.classList.add("is-login");
+    if ($("loginScreen")) $("loginScreen").hidden = false;
+    if ($("appShell")) $("appShell").hidden = true;
+    var remembered = "";
+    try {
+      remembered = localStorage.getItem(REMEMBER_KEY) || "";
+    } catch (e) {}
+    if ($("loginEmail") && remembered) $("loginEmail").value = remembered;
+    if ($("loginRemember")) $("loginRemember").checked = !!remembered;
+    if ($("loginPassword")) $("loginPassword").value = "";
+    if ($("loginError")) {
+      if (opts.message) {
+        $("loginError").hidden = false;
+        $("loginError").textContent = opts.message;
+      } else {
+        $("loginError").hidden = true;
+      }
+    }
+  }
+
+  function showAppShell() {
+    document.body.classList.remove("is-login");
+    if ($("loginScreen")) $("loginScreen").hidden = true;
+    if ($("appShell")) $("appShell").hidden = false;
+  }
+
+  function logoutDemo() {
+    clearSession();
+    showLoginScreen({
+      message: "Anda telah keluar. Silakan login kembali dengan akun demo.",
+    });
+  }
+
+  function handleLoginSubmit(e) {
+    e.preventDefault();
+    var email = (($("loginEmail") && $("loginEmail").value) || "").trim().toLowerCase();
+    var password = (($("loginPassword") && $("loginPassword").value) || "").trim();
+    var remember = $("loginRemember") && $("loginRemember").checked;
+    var err = $("loginError");
+
+    if (!email || !password) {
+      if (err) {
+        err.hidden = false;
+        err.textContent = "Email dan password wajib diisi.";
+      }
+      return;
+    }
+
+    var acc = DUMMY_ACCOUNTS[email];
+    if (!acc || acc.password !== password) {
+      if (err) {
+        err.hidden = false;
+        err.textContent = "Akun tidak ditemukan atau password salah. Gunakan akun demo yang tersedia.";
+      }
+      return;
+    }
+
+    if (err) err.hidden = true;
+    setSession(email, acc.peran, remember);
+    try {
+      history.replaceState(null, "", "#" + (ROLE[acc.peran] && ROLE[acc.peran].home ? ROLE[acc.peran].home : "dashboard"));
+    } catch (e) {}
+    showAppShell();
+    applyPeran(acc.peran, { silent: true });
+    var label =
+      acc.peran === "admin" ? "Admin Sekolah" : acc.peran === "guru" ? "Guru" : "Orang Tua";
+    showToast("Login berhasil sebagai " + label + " (simulasi frontend).");
+  }
+
+  function initAuthUi() {
+    var form = $("formLogin");
+    if (form) form.addEventListener("submit", handleLoginSubmit);
+    var toggle = $("togglePassword");
+    if (toggle) {
+      toggle.addEventListener("click", function () {
+        var input = $("loginPassword");
+        var icon = $("togglePasswordIcon");
+        if (!input) return;
+        var show = input.type === "password";
+        input.type = show ? "text" : "password";
+        if (icon) {
+          icon.classList.toggle("bi-eye", !show);
+          icon.classList.toggle("bi-eye-slash", show);
+        }
+        toggle.setAttribute("aria-label", show ? "Sembunyikan password" : "Tampilkan password");
+      });
+    }
+    var forgot = $("btnForgotPassword");
+    if (forgot) {
+      forgot.addEventListener("click", function () {
+        if ($("loginError")) {
+          $("loginError").hidden = false;
+          $("loginError").textContent =
+            "Mode demonstrasi: reset password tidak tersedia. Gunakan password123.";
+        }
+      });
+    }
+  }
+
   function init() {
     AppCharts.initDefaults();
     toastInst = new bootstrap.Toast($("appToast"), { delay: 2800 });
@@ -1693,11 +1842,19 @@
     }
     bindEvents();
     closeMenus();
-    var saved = "guru";
+    initAuthUi();
+
+    var session = getSession();
+    if (!session) {
+      showLoginScreen();
+      return;
+    }
+    showAppShell();
+    var saved = session.peran;
     try {
-      saved = localStorage.getItem("ta_demo_peran") || "guru";
+      saved = localStorage.getItem("ta_demo_peran") || session.peran;
     } catch (e) {}
-    if (!ROLE[saved]) saved = "guru";
+    if (!ROLE[saved]) saved = session.peran;
     applyPeran(saved, { silent: true });
   }
 
@@ -1712,6 +1869,7 @@
     statusKumpulPill: statusKumpulPill,
     showPage: showPage,
     applyPeran: applyPeran,
+    logout: logoutDemo,
     boleh: boleh,
     modeIzin: modeIzin,
     pageDiizinkan: pageDiizinkan,
