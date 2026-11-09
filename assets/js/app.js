@@ -25,6 +25,14 @@
     peringatan: { title: "Peringatan Dini", crumb: "Analisis / Peringatan Dini" },
     "detail-siswa": { title: "Detail Siswa", crumb: "Analisis / Detail Siswa" },
     alur: { title: "Alur Integrasi", crumb: "Integrasi / Alur Data" },
+    "lms-dashboard": { title: "Dashboard LMS", crumb: "LMS / Dashboard" },
+    "lms-materi": { title: "Materi Pembelajaran", crumb: "LMS / Materi" },
+    "lms-kuis": { title: "Kuis & Ujian Online", crumb: "LMS / Kuis" },
+    "lms-kerjakan": { title: "Kerjakan Kuis", crumb: "LMS / Pengerjaan" },
+    "lms-progress": { title: "Progress Pembelajaran", crumb: "LMS / Progress" },
+    "lms-pengumuman": { title: "Pengumuman Kelas", crumb: "LMS / Pengumuman" },
+    "lms-kalender": { title: "Kalender Akademik", crumb: "LMS / Kalender" },
+    "lms-laporan": { title: "Laporan Pembelajaran LMS", crumb: "LMS / Laporan" },
   };
 
   let toastInst;
@@ -49,6 +57,13 @@
         "bayar-impor",
         "bayar-notifikasi",
         "bayar-riwayat",
+        "lms-dashboard",
+        "lms-materi",
+        "lms-kuis",
+        "lms-progress",
+        "lms-pengumuman",
+        "lms-kalender",
+        "lms-laporan",
       ],
       dashLabel: "Dashboard Sekolah",
       dashCrumb: "Administrasi / Dashboard",
@@ -68,6 +83,9 @@
         "unduh-rekap": true,
         "impor-bayar": true,
         "simulasi-notif": true,
+        "lms-upload-materi": true,
+        "lms-buat-kuis": false,
+        "lms-buat-pengumuman": true,
       },
     },
     guru: {
@@ -86,6 +104,12 @@
         "perkembangan",
         "peringatan",
         "detail-siswa",
+        "lms-dashboard",
+        "lms-materi",
+        "lms-kuis",
+        "lms-progress",
+        "lms-pengumuman",
+        "lms-kalender",
       ],
       dashLabel: "Dashboard Akademik",
       dashCrumb: "Akademik / Dashboard",
@@ -105,6 +129,78 @@
         "unduh-rekap": true,
         "impor-bayar": false,
         "simulasi-notif": false,
+        "lms-upload-materi": true,
+        "lms-buat-kuis": true,
+        "lms-buat-pengumuman": true,
+      },
+    },
+    siswa: {
+      home: "lms-dashboard",
+      pages: [
+        "lms-dashboard",
+        "lms-materi",
+        "lms-kuis",
+        "lms-kerjakan",
+        "lms-progress",
+        "lms-pengumuman",
+        "lms-kalender",
+      ],
+      dashLabel: "Dashboard Pembelajaran",
+      dashCrumb: "LMS / Dashboard",
+      izin: {
+        "catat-hadir": false,
+        "tambah-jadwal": false,
+        "generate-jadwal": false,
+        "atur-penjadwalan": false,
+        "buat-tugas": false,
+        "edit-tugas": false,
+        "terima-kumpul": false,
+        "isi-nilai": false,
+        "simpan-nilai": false,
+        "atur-ambang": false,
+        "simpan-catatan": false,
+        "catat-pegawai": false,
+        "unduh-rekap": false,
+        "impor-bayar": false,
+        "simulasi-notif": false,
+        "lms-upload-materi": false,
+        "lms-buat-kuis": false,
+        "lms-buat-pengumuman": false,
+      },
+    },
+    kepsek: {
+      home: "lms-dashboard",
+      pages: [
+        "lms-dashboard",
+        "lms-materi",
+        "lms-progress",
+        "lms-pengumuman",
+        "lms-kalender",
+        "lms-laporan",
+        "rekap",
+        "jadwal",
+      ],
+      dashLabel: "Monitoring Pembelajaran",
+      dashCrumb: "Pimpinan / LMS",
+      izin: {
+        "catat-hadir": false,
+        "tambah-jadwal": false,
+        "generate-jadwal": false,
+        "atur-penjadwalan": false,
+        "buat-tugas": false,
+        "edit-tugas": false,
+        "terima-kumpul": false,
+        "isi-nilai": false,
+        "simpan-nilai": false,
+        "atur-ambang": false,
+        "simpan-catatan": false,
+        "catat-pegawai": false,
+        "unduh-rekap": true,
+        "impor-bayar": false,
+        "simulasi-notif": false,
+        "lms-upload-materi": false,
+        "lms-buat-kuis": false,
+        "lms-buat-pengumuman": true,
       },
     },
     orangtua: {
@@ -128,6 +224,9 @@
         "unduh-rekap": false,
         "impor-bayar": false,
         "simulasi-notif": false,
+        "lms-upload-materi": false,
+        "lms-buat-kuis": false,
+        "lms-buat-pengumuman": false,
       },
     },
   };
@@ -1211,6 +1310,15 @@
             { ikon: "bi-clipboard-check", judul: "Status kehadiran anak tersedia di portal", waktu: D.hariIniLabel },
           ]
         : [{ ikon: "bi-info-circle", judul: "Belum ada anak tertaut pada akun demo", waktu: "Portal" }],
+      siswa: [
+        { ikon: "bi-journal-richtext", judul: "Materi baru: Video Menyederhanakan Pecahan", waktu: "22 Okt 2026" },
+        { ikon: "bi-ui-checks-grid", judul: "Kuis Pecahan Senilai masih dibuka", waktu: "Batas 5 Nov 2026" },
+        { ikon: "bi-megaphone", judul: "Pengumuman: pengumpulan tugas diperpanjang", waktu: "28 Okt 2026" },
+      ],
+      kepsek: [
+        { ikon: "bi-bar-chart-steps", judul: "Rata progres materi LMS kelas aktif tersedia", waktu: "Monitoring" },
+        { ikon: "bi-clipboard-data", judul: "Laporan pembelajaran LMS siap ditinjau", waktu: D.hariIniLabel },
+      ],
     };
     $("notifList").innerHTML = (catatan[peran] || [])
       .map(function (n) {
@@ -1220,7 +1328,8 @@
     applyScopeFilters();
     applyIzinUi();
     if (window.ModulJadwal && ModulJadwal.onRoleChange) ModulJadwal.onRoleChange();
-    if ($("tugasFilterKelas")) {
+    if (window.ModulLms && ModulLms.onRoleChange) ModulLms.onRoleChange();
+    if ($("tugasFilterKelas") && peran !== "siswa" && peran !== "kepsek" && peran !== "orangtua") {
       renderDashboard();
       renderTugas();
       renderPengumpulanKpi();
@@ -1274,6 +1383,7 @@
     closeMenus();
     if (window.Modul1) Modul1.onShow(page);
     if (window.ModulJadwal) ModulJadwal.onShow(page);
+    if (window.ModulLms) ModulLms.onShow(page);
     if (window.Modul3) Modul3.onShow(page);
     if (window.Modul4) Modul4.onShow(page);
     if (page === "dashboard") renderDashboard();

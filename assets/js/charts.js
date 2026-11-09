@@ -668,10 +668,46 @@
     });
   }
 
+  function renderLmsProgress(canvasId, progressRow, data) {
+    var labels = (data && data.periode) || ["Juli", "Agustus", "September", "Oktober"];
+    var values =
+      progressRow && progressRow.trenBulanan
+        ? progressRow.trenBulanan.slice()
+        : [70, 72, 74, 76];
+    make(canvasId, {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: progressRow ? progressRow.nama : "Progres belajar",
+            data: values,
+            borderColor: COLORS.accent,
+            backgroundColor: "rgba(61,155,79,0.12)",
+            fill: true,
+            tension: 0.35,
+            pointRadius: 4,
+            pointBackgroundColor: COLORS.accent,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { min: 0, max: 100, grid: { color: COLORS.grid } },
+          x: { grid: { display: false } },
+        },
+        plugins: { legend: { display: true, position: "bottom" } },
+      },
+    });
+  }
+
   function renderForPage(page, data) {
     destroyAll();
     var peran = global.UI && UI.getPeran ? UI.getPeran() : null;
-    if (page === "dashboard" && peran !== "admin" && peran !== "orangtua") createDashboardCharts(data);
+    if (page === "dashboard" && peran !== "admin" && peran !== "orangtua" && peran !== "siswa" && peran !== "kepsek")
+      createDashboardCharts(data);
     if (page === "rekap") createRekapCharts(data);
     if (page === "analisis") createAnalisisCharts(data);
     if (page === "absensi") createAbsensiCharts(data);
@@ -680,11 +716,23 @@
     if (page === "analisis-dashboard") createAnalisisDashCharts(data);
     if (page === "perkembangan") createPerkembanganChart(data);
     if (page === "detail-siswa") createDetailCharts(data);
+    if (page === "lms-progress") {
+      var list = (data.lms && data.lms.progressSiswa) || [];
+      var row = list[0];
+      if (peran === "siswa" && data.peranContoh && data.peranContoh.siswa) {
+        row =
+          list.filter(function (p) {
+            return p.nis === data.peranContoh.siswa.nis;
+          })[0] || row;
+      }
+      renderLmsProgress("chartLmsProgress", row, data);
+    }
   }
 
   global.AppCharts = {
     initDefaults: baseOptions,
     renderForPage: renderForPage,
+    renderLmsProgress: renderLmsProgress,
     destroyAll: destroyAll,
   };
 })(window);

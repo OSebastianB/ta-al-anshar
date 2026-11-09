@@ -41,7 +41,7 @@
           <button class="nav-item" data-page="pegawai" data-akses="admin" type="button">
             <i class="bi bi-person-badge"></i><span>Kehadiran Pegawai</span>
           </button>
-          <button class="nav-item" data-page="jadwal" data-akses="admin guru" type="button">
+          <button class="nav-item" data-page="jadwal" data-akses="admin guru kepsek" type="button">
             <i class="bi bi-calendar-week"></i><span>Jadwal Pembelajaran</span>
           </button>
           <button class="nav-item" data-page="rekap-absensi" data-akses="admin guru" type="button">
@@ -71,7 +71,7 @@
           <button class="nav-item" data-page="penilaian" data-akses="guru" type="button">
             <i class="bi bi-check2-square"></i><span>Penilaian</span>
           </button>
-          <button class="nav-item" data-page="rekap" data-akses="admin guru" type="button">
+          <button class="nav-item" data-page="rekap" data-akses="admin guru kepsek" type="button">
             <i class="bi bi-table"></i><span>Rekap Nilai</span>
           </button>
           <button class="nav-item" data-page="analisis-dashboard" data-akses="guru" type="button">
@@ -85,6 +85,30 @@
           </button>
           <button class="nav-item" data-page="detail-siswa" data-akses="guru" type="button">
             <i class="bi bi-person-vcard"></i><span>Detail Siswa</span>
+          </button>
+          <button class="nav-item" data-page="lms-dashboard" data-akses="admin guru siswa kepsek" type="button">
+            <i class="bi bi-mortarboard"></i><span>Dashboard LMS</span>
+          </button>
+          <button class="nav-item" data-page="lms-materi" data-akses="admin guru siswa kepsek" type="button">
+            <i class="bi bi-journal-richtext"></i><span>Materi Pembelajaran</span>
+          </button>
+          <button class="nav-item" data-page="lms-kuis" data-akses="admin guru siswa" type="button">
+            <i class="bi bi-ui-checks-grid"></i><span>Kuis &amp; Ujian</span>
+          </button>
+          <button class="nav-item" data-page="lms-kerjakan" data-akses="siswa" type="button">
+            <i class="bi bi-pencil-square"></i><span>Kerjakan Kuis</span>
+          </button>
+          <button class="nav-item" data-page="lms-progress" data-akses="admin guru siswa kepsek" type="button">
+            <i class="bi bi-bar-chart-steps"></i><span>Progress Belajar</span>
+          </button>
+          <button class="nav-item" data-page="lms-pengumuman" data-akses="admin guru siswa kepsek" type="button">
+            <i class="bi bi-megaphone"></i><span>Pengumuman Kelas</span>
+          </button>
+          <button class="nav-item" data-page="lms-kalender" data-akses="admin guru siswa kepsek" type="button">
+            <i class="bi bi-calendar3"></i><span>Kalender Akademik</span>
+          </button>
+          <button class="nav-item" data-page="lms-laporan" data-akses="kepsek admin" type="button">
+            <i class="bi bi-clipboard-data"></i><span>Laporan LMS</span>
           </button>
         </nav>
         <div class="sidebar-footer">
@@ -139,6 +163,8 @@
                 <li><h6 class="dropdown-header">Simulasi role (RBAC)</h6></li>
                 <li><button class="dropdown-item" type="button" data-ganti-peran="admin">Admin Sekolah</button></li>
                 <li><button class="dropdown-item" type="button" data-ganti-peran="guru">Guru / Wali Kelas</button></li>
+                <li><button class="dropdown-item" type="button" data-ganti-peran="siswa">Siswa</button></li>
+                <li><button class="dropdown-item" type="button" data-ganti-peran="kepsek">Kepala Sekolah</button></li>
                 <li><button class="dropdown-item" type="button" data-ganti-peran="orangtua">Orang Tua</button></li>
                 <li><hr class="dropdown-divider" /></li>
                 <li><button class="dropdown-item js-demo" type="button">Keluar</button></li>
@@ -1300,6 +1326,208 @@
             </div>
           </section>
 
+          <!-- LMS -->
+          <section class="page" id="page-lms-dashboard">
+            <div class="page-header">
+              <div>
+                <h1 id="lmsDashTitle">Dashboard LMS</h1>
+                <p id="lmsDashSub">Learning Management System SD Islam Al-Anshar.</p>
+              </div>
+            </div>
+            <div class="kpi-grid" id="lmsDashKpi"></div>
+            <div class="panel" style="margin-top:16px">
+              <div class="panel-head">
+                <div>
+                  <h2>Aktivitas terkini</h2>
+                  <div id="lmsDashInfo"></div>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead id="lmsDashListHead"><tr><th>Item</th><th>Kelas</th><th>Info</th><th>Status</th></tr></thead>
+                  <tbody id="lmsDashList"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-lms-materi">
+            <div class="page-header">
+              <div>
+                <h1>Materi Pembelajaran</h1>
+                <p>Kelola dan akses materi PDF, PPT, video, serta dokumen per kelas dan mapel.</p>
+              </div>
+              <button class="btn btn-primary" type="button" id="btnLmsUploadMateri" data-izin="lms-upload-materi" data-bs-toggle="modal" data-bs-target="#modalLmsMateri">
+                <i class="bi bi-upload"></i> Unggah Materi
+              </button>
+            </div>
+            <div class="filter-bar">
+              <div class="search-wrap">
+                <i class="bi bi-search"></i>
+                <input class="form-control" id="lmsMateriCari" type="search" placeholder="Cari judul materi…" />
+              </div>
+              <select class="form-select" id="lmsMateriKelas"></select>
+              <select class="form-select" id="lmsMateriMapel"></select>
+              <select class="form-select" id="lmsMateriTipe">
+                <option value="">Semua tipe</option>
+                <option value="PDF">PDF</option>
+                <option value="PPT">PPT</option>
+                <option value="Video">Video</option>
+                <option value="Dokumen">Dokumen</option>
+              </select>
+            </div>
+            <div class="panel">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr><th>Materi</th><th>Mapel</th><th>Kelas</th><th>Tipe</th><th>Status</th><th>Publikasi</th><th>Aksi</th></tr>
+                  </thead>
+                  <tbody id="lmsMateriBody"></tbody>
+                </table>
+              </div>
+              <div class="table-foot" id="lmsMateriFoot"></div>
+            </div>
+          </section>
+
+          <section class="page" id="page-lms-kuis">
+            <div class="page-header">
+              <div>
+                <h1>Kuis &amp; Ujian Online</h1>
+                <p>Buat dan kerjakan kuis/ujian dengan soal pilihan ganda serta esai.</p>
+              </div>
+              <button class="btn btn-primary" type="button" id="btnLmsBuatKuis" data-izin="lms-buat-kuis" data-bs-toggle="modal" data-bs-target="#modalLmsKuis">
+                <i class="bi bi-plus-lg"></i> Buat Kuis/Ujian
+              </button>
+            </div>
+            <div class="filter-bar">
+              <select class="form-select" id="lmsKuisKelas"></select>
+              <select class="form-select" id="lmsKuisJenis">
+                <option value="">Semua jenis</option>
+                <option value="Kuis">Kuis</option>
+                <option value="Ujian">Ujian</option>
+              </select>
+            </div>
+            <div class="panel">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr><th>Judul</th><th>Mapel</th><th>Kelas</th><th>Jenis</th><th>Durasi</th><th>Batas waktu</th><th>Status</th><th>Aksi</th></tr>
+                  </thead>
+                  <tbody id="lmsKuisBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-lms-kerjakan">
+            <div id="lmsKerjakanWrap"></div>
+          </section>
+
+          <section class="page" id="page-lms-progress">
+            <div class="page-header">
+              <div>
+                <h1>Progress Pembelajaran</h1>
+                <p>Persentase materi, status tugas, dan riwayat nilai kuis/ujian.</p>
+              </div>
+            </div>
+            <div class="filter-bar">
+              <select class="form-select" id="lmsProgressKelas"></select>
+            </div>
+            <div class="kpi-grid" id="lmsProgressKpi"></div>
+            <div class="split-2" style="margin-top:16px">
+              <div class="panel">
+                <div class="panel-head"><h2>Grafik perkembangan</h2></div>
+                <div class="panel-body"><div class="chart-box sm"><canvas id="chartLmsProgress"></canvas></div></div>
+              </div>
+              <div class="panel">
+                <div class="panel-head"><h2>Ringkasan siswa</h2></div>
+                <div class="table-wrap" style="max-height:280px">
+                  <table class="data-table">
+                    <thead>
+                      <tr><th>Nama</th><th>Kelas</th><th>Materi</th><th>Tugas ✓</th><th>Belum</th><th>Kuis</th></tr>
+                    </thead>
+                    <tbody id="lmsProgressBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-lms-pengumuman">
+            <div class="page-header">
+              <div>
+                <h1>Pengumuman Kelas</h1>
+                <p>Informasi tugas, ujian, materi, dan pengumuman umum per kelas.</p>
+              </div>
+              <button class="btn btn-primary" type="button" id="btnLmsBuatPeng" data-izin="lms-buat-pengumuman" data-bs-toggle="modal" data-bs-target="#modalLmsPeng">
+                <i class="bi bi-plus-lg"></i> Buat Pengumuman
+              </button>
+            </div>
+            <div class="filter-bar">
+              <select class="form-select" id="lmsPengKelas"></select>
+              <select class="form-select" id="lmsPengKategori">
+                <option value="">Semua kategori</option>
+                <option value="Umum">Umum</option>
+                <option value="Materi">Materi</option>
+                <option value="Tugas">Tugas</option>
+                <option value="Ujian">Ujian</option>
+              </select>
+            </div>
+            <div id="lmsPengBody"></div>
+          </section>
+
+          <section class="page" id="page-lms-kalender">
+            <div class="page-header">
+              <div>
+                <h1>Kalender Akademik</h1>
+                <p>Jadwal pembelajaran, ujian, dan deadline tugas.</p>
+              </div>
+              <div class="page-header-actions">
+                <button class="btn btn-outline-secondary" type="button" id="lmsCalPrev"><i class="bi bi-chevron-left"></i></button>
+                <strong id="lmsCalTitle">—</strong>
+                <button class="btn btn-outline-secondary" type="button" id="lmsCalNext"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+            <div class="panel" style="margin-bottom:16px">
+              <div class="panel-body">
+                <div class="lms-cal-grid" id="lmsCalGrid"></div>
+                <div class="lms-cal-legend">
+                  <span><i class="dot pembelajaran"></i> Pembelajaran</span>
+                  <span><i class="dot ujian"></i> Ujian</span>
+                  <span><i class="dot deadline"></i> Deadline</span>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h2>Daftar kegiatan</h2></div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead><tr><th>Tanggal</th><th>Kegiatan</th><th>Jenis</th><th>Kelas</th><th>Mapel</th></tr></thead>
+                  <tbody id="lmsCalList"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="page-lms-laporan">
+            <div class="page-header">
+              <div>
+                <h1>Laporan Pembelajaran LMS</h1>
+                <p>Monitoring penyelesaian materi dan aktivitas kuis untuk pimpinan sekolah.</p>
+              </div>
+            </div>
+            <div class="kpi-grid" id="lmsLaporanKpi"></div>
+            <div class="panel" style="margin-top:16px">
+              <div class="panel-head"><h2>Status siswa</h2></div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead><tr><th>Nama</th><th>Kelas</th><th>Progres materi</th><th>Tugas belum</th><th>Kuis</th><th>Status</th></tr></thead>
+                  <tbody id="lmsLaporanBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
           <section class="page" id="page-alur">
             <div class="page-header">
               <div>
@@ -1490,6 +1718,7 @@
     <script src="assets/vendor/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="assets/vendor/chartjs/chart.umd.min.js"></script>
     <script src="assets/js/data.js"></script>
+    <script src="assets/js/data-lms.js"></script>
     <script src="assets/js/charts.js"></script>
     <div class="modal fade" id="modalCatatHadir" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
@@ -1641,11 +1870,140 @@
       </div>
     </div>
 
+    <div class="modal fade" id="modalLmsMateri" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <form id="formLmsMateri" autocomplete="off">
+            <div class="modal-header">
+              <h2 class="modal-title">Unggah Materi</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-12"><label class="form-label" for="lmJudul">Judul materi</label><input class="form-control" id="lmJudul" required /></div>
+                <div class="col-md-6"><label class="form-label" for="lmMapel">Mata pelajaran</label><select class="form-select" id="lmMapel"></select></div>
+                <div class="col-md-6"><label class="form-label" for="lmKelas">Kelas</label><select class="form-select" id="lmKelas"></select></div>
+                <div class="col-md-6"><label class="form-label" for="lmTipe">Tipe berkas</label>
+                  <select class="form-select" id="lmTipe"><option>PDF</option><option>PPT</option><option>Video</option><option>Dokumen</option></select>
+                </div>
+                <div class="col-md-6"><label class="form-label" for="lmStatus">Status</label>
+                  <select class="form-select" id="lmStatus"><option>Published</option><option>Draft</option></select>
+                </div>
+                <div class="col-12"><label class="form-label" for="lmFile">Berkas (simulasi)</label><input class="form-control" id="lmFile" type="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.mp4,.mkv" /></div>
+                <div class="col-12"><label class="form-label" for="lmDeskripsi">Deskripsi</label><textarea class="form-control" id="lmDeskripsi" rows="2"></textarea></div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Batal</button>
+              <button class="btn btn-primary" type="submit">Simpan materi</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalLmsMateriDetail" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title">Detail Materi</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+          </div>
+          <div class="modal-body"><div class="detail-grid" id="lmsMateriDetailBody"></div></div>
+          <div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Tutup</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalLmsKuis" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <form id="formLmsKuis" autocomplete="off">
+            <div class="modal-header">
+              <h2 class="modal-title">Buat Kuis / Ujian</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-12"><label class="form-label" for="lkJudul">Judul</label><input class="form-control" id="lkJudul" required /></div>
+                <div class="col-md-4"><label class="form-label" for="lkJenis">Jenis</label><select class="form-select" id="lkJenis"><option>Kuis</option><option>Ujian</option></select></div>
+                <div class="col-md-4"><label class="form-label" for="lkMapel">Mapel</label><select class="form-select" id="lkMapel"></select></div>
+                <div class="col-md-4"><label class="form-label" for="lkKelas">Kelas</label><select class="form-select" id="lkKelas"></select></div>
+                <div class="col-md-6"><label class="form-label" for="lkDurasi">Durasi (menit)</label><input class="form-control" id="lkDurasi" type="number" value="20" min="5" max="120" /></div>
+                <div class="col-md-6"><label class="form-label" for="lkBatas">Batas waktu</label><input class="form-control" id="lkBatas" value="2026-11-15 16:00" /></div>
+                <div class="col-12"><hr class="my-1" /><strong>Soal pilihan ganda</strong></div>
+                <div class="col-12"><label class="form-label" for="lkPgTeks">Pertanyaan PG</label><input class="form-control" id="lkPgTeks" placeholder="Contoh: Hasil 1/2 + 1/4 …" /></div>
+                <div class="col-md-3"><input class="form-control" id="lkOpsi0" placeholder="Opsi A" value="A" /></div>
+                <div class="col-md-3"><input class="form-control" id="lkOpsi1" placeholder="Opsi B" value="B" /></div>
+                <div class="col-md-3"><input class="form-control" id="lkOpsi2" placeholder="Opsi C" value="C" /></div>
+                <div class="col-md-3"><input class="form-control" id="lkOpsi3" placeholder="Opsi D" value="D" /></div>
+                <div class="col-md-4"><label class="form-label" for="lkKunci">Kunci (0–3)</label><input class="form-control" id="lkKunci" type="number" min="0" max="3" value="0" /></div>
+                <div class="col-12"><strong>Soal esai</strong></div>
+                <div class="col-12"><label class="form-label" for="lkEsaiTeks">Pertanyaan esai</label><textarea class="form-control" id="lkEsaiTeks" rows="2" placeholder="Opsional"></textarea></div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Batal</button>
+              <button class="btn btn-primary" type="submit">Simpan kuis</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalLmsHasilKuis" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title" id="lmsHasilKuisTitle">Hasil kuis</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+          </div>
+          <div class="modal-body">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Nama</th><th>NIS</th><th>Nilai PG</th><th>Esai</th><th>Akhir</th><th>Waktu</th></tr></thead>
+                <tbody id="lmsHasilKuisBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Tutup</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalLmsPeng" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form id="formLmsPeng" autocomplete="off">
+            <div class="modal-header">
+              <h2 class="modal-title">Buat Pengumuman</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-12"><label class="form-label" for="lpJudul">Judul</label><input class="form-control" id="lpJudul" required /></div>
+                <div class="col-md-6"><label class="form-label" for="lpKelas">Kelas</label><select class="form-select" id="lpKelas"></select></div>
+                <div class="col-md-6"><label class="form-label" for="lpKategori">Kategori</label>
+                  <select class="form-select" id="lpKategori"><option>Umum</option><option>Materi</option><option>Tugas</option><option>Ujian</option></select>
+                </div>
+                <div class="col-12"><label class="form-label" for="lpIsi">Isi</label><textarea class="form-control" id="lpIsi" rows="3" required></textarea></div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Batal</button>
+              <button class="btn btn-primary" type="submit">Publikasikan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <script src="assets/js/csp-scheduler.js"></script>
     <script src="assets/js/app.js"></script>
     <script src="assets/js/modul1.js"></script>
     <script src="assets/js/modul-jadwal.js"></script>
     <script src="assets/js/modul3.js"></script>
     <script src="assets/js/modul4.js"></script>
+    <script src="assets/js/modul-lms.js"></script>
   </body>
 </html>
