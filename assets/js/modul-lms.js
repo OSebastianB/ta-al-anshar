@@ -15,7 +15,7 @@
   }
 
   function siswaDemo() {
-    return D.peranContoh.siswa;
+    return { inisial: "", nama: "", peran: "", nis: "", kelas: "" };
   }
 
   function esc(s) {
@@ -58,11 +58,10 @@
   }
 
   function isSiswa() {
-    return peran() === "siswa";
+    return false;
   }
 
   function scopeKelas() {
-    if (peran() === "siswa") return siswaDemo().kelas;
     if (peran() === "guru") return null;
     return null;
   }
@@ -887,7 +886,6 @@
     if (!page || page === "lms-dashboard") renderDashboard();
     if (!page || page === "lms-materi") renderMateri();
     if (!page || page === "lms-kuis") renderKuis();
-    if (!page || page === "lms-kerjakan") renderKerjakan();
     if (!page || page === "lms-progress") renderProgress();
     if (!page || page === "lms-pengumuman") renderPengumuman();
     if (!page || page === "lms-kalender") renderKalender();

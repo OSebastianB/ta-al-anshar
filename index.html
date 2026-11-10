@@ -18,7 +18,7 @@
         <main class="login-form-panel">
           <form class="login-card" id="formLogin" autocomplete="on" novalidate>
             <div class="login-card-head">
-              <div class="brand-mark login-logo-sm"><small>الأنصار</small>AA</div>
+              <img class="brand-mark login-logo-sm" src="assets/img/logo-al-anshar.jpg" alt="Logo Yayasan Islam Al-Anshar" />
               <h2>Masuk ke Sistem</h2>
             </div>
             <div class="mb-3">
@@ -57,7 +57,7 @@
     <div class="app-shell" id="appShell" hidden>
       <aside class="app-sidebar" id="sidebar">
         <div class="sidebar-brand">
-          <div class="brand-mark"><small>الأنصار</small>AA</div>
+          <img class="brand-mark" src="assets/img/logo-al-anshar.jpg" alt="Logo Yayasan Islam Al-Anshar" />
           <div>
             <div class="brand-title">SD Islam <b>Al-Anshar</b></div>
             <div class="brand-sub">Kota Bekasi</div>
@@ -69,7 +69,7 @@
             <button class="nav-item active" data-page="dashboard" data-akses="admin guru" type="button">
               <i class="bi bi-grid-1x2"></i><span id="navDashboardLabel">Dashboard</span>
             </button>
-            <button class="nav-item" data-page="lms-dashboard" data-akses="admin guru siswa kepsek" type="button">
+            <button class="nav-item" data-page="lms-dashboard" data-akses="admin guru kepsek" type="button">
               <i class="bi bi-mortarboard"></i><span>Dashboard LMS</span>
             </button>
             <button class="nav-item" data-page="portal" data-akses="orangtua" type="button">
@@ -97,16 +97,13 @@
             <button class="nav-item" data-page="pengumpulan" data-akses="guru" type="button">
               <i class="bi bi-inbox"></i><span>Pengumpulan Tugas</span>
             </button>
-            <button class="nav-item" data-page="lms-materi" data-akses="admin guru siswa kepsek" type="button">
+            <button class="nav-item" data-page="lms-materi" data-akses="admin guru kepsek" type="button">
               <i class="bi bi-journal-richtext"></i><span>Materi Pembelajaran</span>
             </button>
-            <button class="nav-item" data-page="lms-kuis" data-akses="admin guru siswa" type="button">
+            <button class="nav-item" data-page="lms-kuis" data-akses="admin guru" type="button">
               <i class="bi bi-ui-checks-grid"></i><span>Kuis &amp; Ujian</span>
             </button>
-            <button class="nav-item" data-page="lms-kerjakan" data-akses="siswa" type="button">
-              <i class="bi bi-pencil-square"></i><span>Kerjakan Kuis</span>
-            </button>
-            <button class="nav-item" data-page="lms-kalender" data-akses="admin guru siswa kepsek" type="button">
+            <button class="nav-item" data-page="lms-kalender" data-akses="admin guru kepsek" type="button">
               <i class="bi bi-calendar3"></i><span>Kalender Akademik</span>
             </button>
           </div>
@@ -134,7 +131,7 @@
             <button class="nav-item" data-page="detail-siswa" data-akses="guru" type="button">
               <i class="bi bi-person-vcard"></i><span>Detail Siswa</span>
             </button>
-            <button class="nav-item" data-page="lms-progress" data-akses="admin guru siswa kepsek" type="button">
+            <button class="nav-item" data-page="lms-progress" data-akses="admin guru kepsek" type="button">
               <i class="bi bi-bar-chart-steps"></i><span>Progress Belajar</span>
             </button>
             <button class="nav-item" data-page="lms-laporan" data-akses="kepsek admin" type="button">
@@ -144,7 +141,7 @@
 
           <div class="nav-group" data-nav-group>
             <div class="nav-label">Komunikasi</div>
-            <button class="nav-item" data-page="lms-pengumuman" data-akses="admin guru siswa kepsek" type="button">
+            <button class="nav-item" data-page="lms-pengumuman" data-akses="admin guru kepsek" type="button">
               <i class="bi bi-megaphone"></i><span>Pengumuman Kelas</span>
             </button>
             <button class="nav-item" data-page="bayar-notifikasi" data-akses="admin" type="button">
@@ -236,7 +233,6 @@
                 <li><h6 class="dropdown-header">Simulasi role (RBAC)</h6></li>
                 <li><button class="dropdown-item" type="button" data-ganti-peran="admin">Admin Sekolah</button></li>
                 <li><button class="dropdown-item" type="button" data-ganti-peran="guru">Guru / Wali Kelas</button></li>
-                <li><button class="dropdown-item" type="button" data-ganti-peran="siswa">Siswa</button></li>
                 <li><button class="dropdown-item" type="button" data-ganti-peran="kepsek">Kepala Sekolah</button></li>
                 <li><button class="dropdown-item" type="button" data-ganti-peran="orangtua">Orang Tua</button></li>
                 <li><hr class="dropdown-divider" /></li>
@@ -482,7 +478,7 @@
               </div>
               <div class="panel">
                 <div class="panel-head"><h2>Rekap per Siswa</h2></div>
-                <div class="table-wrap" style="max-height:280px">
+                <div class="table-wrap table-wrap-fill">
                   <table class="data-table">
                     <thead><tr><th>Nama</th><th>Kelas</th><th>Hadir</th><th>Terlambat</th><th>Izin</th><th>Sakit</th><th>Alpa</th><th>%</th></tr></thead>
                     <tbody id="rekapAbsenBody"></tbody>
@@ -538,7 +534,7 @@
               </div>
               <div class="panel">
                 <div class="panel-head"><h2>Riwayat Kehadiran</h2></div>
-                <div class="table-wrap" style="max-height:320px">
+                <div class="table-wrap table-wrap-fill">
                   <table class="data-table">
                     <thead><tr><th>Tanggal</th><th>Waktu</th><th>Status</th><th>Keterangan</th></tr></thead>
                     <tbody id="portalBody"></tbody>
@@ -1504,10 +1500,6 @@
             </div>
           </section>
 
-          <section class="page" id="page-lms-kerjakan">
-            <div id="lmsKerjakanWrap"></div>
-          </section>
-
           <section class="page" id="page-lms-progress">
             <div class="page-header">
               <div>
@@ -1526,7 +1518,7 @@
               </div>
               <div class="panel">
                 <div class="panel-head"><h2>Ringkasan siswa</h2></div>
-                <div class="table-wrap" style="max-height:280px">
+                <div class="table-wrap table-wrap-fill">
                   <table class="data-table">
                     <thead>
                       <tr><th>Nama</th><th>Kelas</th><th>Materi</th><th>Tugas ✓</th><th>Belum</th><th>Kuis</th></tr>

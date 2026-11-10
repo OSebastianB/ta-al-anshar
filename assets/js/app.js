@@ -28,7 +28,6 @@
     "lms-dashboard": { title: "Dashboard LMS", crumb: "LMS / Dashboard" },
     "lms-materi": { title: "Materi Pembelajaran", crumb: "LMS / Materi" },
     "lms-kuis": { title: "Kuis & Ujian Online", crumb: "LMS / Kuis" },
-    "lms-kerjakan": { title: "Kerjakan Kuis", crumb: "LMS / Pengerjaan" },
     "lms-progress": { title: "Progress Pembelajaran", crumb: "LMS / Progress" },
     "lms-pengumuman": { title: "Pengumuman Kelas", crumb: "LMS / Pengumuman" },
     "lms-kalender": { title: "Kalender Akademik", crumb: "LMS / Kalender" },
@@ -139,40 +138,6 @@
         "lms-upload-materi": true,
         "lms-buat-kuis": true,
         "lms-buat-pengumuman": true,
-      },
-    },
-    siswa: {
-      home: "lms-dashboard",
-      pages: [
-        "lms-dashboard",
-        "lms-materi",
-        "lms-kuis",
-        "lms-kerjakan",
-        "lms-progress",
-        "lms-pengumuman",
-        "lms-kalender",
-      ],
-      dashLabel: "Dashboard Pembelajaran",
-      dashCrumb: "LMS / Dashboard",
-      izin: {
-        "catat-hadir": false,
-        "tambah-jadwal": false,
-        "generate-jadwal": false,
-        "atur-penjadwalan": false,
-        "buat-tugas": false,
-        "edit-tugas": false,
-        "terima-kumpul": false,
-        "isi-nilai": false,
-        "simpan-nilai": false,
-        "atur-ambang": false,
-        "simpan-catatan": false,
-        "catat-pegawai": false,
-        "unduh-rekap": false,
-        "impor-bayar": false,
-        "simulasi-notif": false,
-        "lms-upload-materi": false,
-        "lms-buat-kuis": false,
-        "lms-buat-pengumuman": false,
       },
     },
     kepsek: {
@@ -1335,11 +1300,6 @@
             { ikon: "bi-clipboard-check", judul: "Status kehadiran anak tersedia di portal", waktu: D.hariIniLabel },
           ]
         : [{ ikon: "bi-info-circle", judul: "Belum ada anak tertaut pada akun demo", waktu: "Portal" }],
-      siswa: [
-        { ikon: "bi-journal-richtext", judul: "Materi baru: Video Menyederhanakan Pecahan", waktu: "22 Okt 2026" },
-        { ikon: "bi-ui-checks-grid", judul: "Kuis Pecahan Senilai masih dibuka", waktu: "Batas 5 Nov 2026" },
-        { ikon: "bi-megaphone", judul: "Pengumuman: pengumpulan tugas diperpanjang", waktu: "28 Okt 2026" },
-      ],
       kepsek: [
         { ikon: "bi-bar-chart-steps", judul: "Rata progres materi LMS kelas aktif tersedia", waktu: "Monitoring" },
         { ikon: "bi-clipboard-data", judul: "Laporan pembelajaran LMS siap ditinjau", waktu: D.hariIniLabel },
@@ -1354,7 +1314,7 @@
     applyIzinUi();
     if (window.ModulJadwal && ModulJadwal.onRoleChange) ModulJadwal.onRoleChange();
     if (window.ModulLms && ModulLms.onRoleChange) ModulLms.onRoleChange();
-    if ($("tugasFilterKelas") && peran !== "siswa" && peran !== "kepsek" && peran !== "orangtua") {
+    if ($("tugasFilterKelas") && peran !== "kepsek" && peran !== "orangtua") {
       renderDashboard();
       renderTugas();
       renderPengumpulanKpi();

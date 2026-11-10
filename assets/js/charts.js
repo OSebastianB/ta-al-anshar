@@ -706,7 +706,7 @@
   function renderForPage(page, data) {
     destroyAll();
     var peran = global.UI && UI.getPeran ? UI.getPeran() : null;
-    if (page === "dashboard" && peran !== "admin" && peran !== "orangtua" && peran !== "siswa" && peran !== "kepsek")
+    if (page === "dashboard" && peran !== "admin" && peran !== "orangtua" && peran !== "kepsek")
       createDashboardCharts(data);
     if (page === "rekap") createRekapCharts(data);
     if (page === "analisis") createAnalisisCharts(data);
@@ -719,12 +719,6 @@
     if (page === "lms-progress") {
       var list = (data.lms && data.lms.progressSiswa) || [];
       var row = list[0];
-      if (peran === "siswa" && data.peranContoh && data.peranContoh.siswa) {
-        row =
-          list.filter(function (p) {
-            return p.nis === data.peranContoh.siswa.nis;
-          })[0] || row;
-      }
       renderLmsProgress("chartLmsProgress", row, data);
     }
   }

@@ -3,13 +3,6 @@
   var D = window.APP_DATA;
   if (!D) return;
 
-  D.peranContoh.siswa = {
-    inisial: "AF",
-    nama: "Ahmad Fauzan",
-    peran: "Siswa",
-    nis: "2024510001",
-    kelas: "V-A",
-  };
   D.peranContoh.kepsek = {
     inisial: "KS",
     nama: "Pak Hidayat Rahman",
