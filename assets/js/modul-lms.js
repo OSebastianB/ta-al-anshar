@@ -1,9 +1,8 @@
-/* Modul LMS — materi, kuis, progress, pengumuman, kalender */
+/* Modul LMS — materi, progress, pengumuman, kalender */
 (function () {
   var D;
   var STORE = "ta_lms_state_v1";
   var quizTimer = null;
-  var quizState = null;
   var calMonth = new Date(2026, 9, 1); /* Okt 2026 */
 
   function ui() {
@@ -96,9 +95,13 @@
     var materiPub = D.lms.materi.filter(function (m) {
       return m.status === "Published";
     }).length;
-    var kuisAktif = D.lms.kuis.filter(function (k) {
-      return k.status === "Aktif";
-    }).length;
+    var materiDraft = D.lms.materi.length - materiPub;
+    var kalenderN = D.lms.kalender.length;
+    var rataProgres = Math.round(
+      D.lms.progressSiswa.reduce(function (a, p) {
+        return a + p.persenMateri;
+      }, 0) / (D.lms.progressSiswa.length || 1)
+    );
     var peng = D.lms.pengumuman.length;
 
     if (isSiswa()) {
@@ -108,12 +111,12 @@
       })[0];
       document.getElementById("lmsDashTitle").textContent = "Dashboard Pembelajaran";
       document.getElementById("lmsDashSub").textContent =
-        "Halo, " + s.nama + " · kelas " + s.kelas + ". Akses materi, kuis, dan pantau progres belajar.";
+        "Halo, " + s.nama + " · kelas " + s.kelas + ". Akses materi dan pantau progres belajar.";
       box.innerHTML = kpi([
         ["Materi tersedia", materiPub, "bi-journal-richtext", "teal", "kelas " + s.kelas],
-        ["Kuis/ujian aktif", kuisAktif, "bi-ui-checks-grid", "amber", "siap dikerjakan"],
+        ["Pengumuman", peng, "bi-megaphone", "amber", "kelas & umum"],
         ["Progres materi", (prog ? prog.persenMateri : 0) + "%", "bi-bar-chart", "navy", (prog ? prog.materiSelesai : 0) + "/" + (prog ? prog.totalMateri : 0)],
-        ["Tugas belum", prog ? prog.tugasBelum : 0, "bi-journal-x", "rose", "perlu dikerjakan"],
+        ["Agenda kalender", kalenderN, "bi-calendar3", "rose", "kegiatan akademik"],
       ]);
       if (info) {
         info.innerHTML =
@@ -147,7 +150,7 @@
         }, 0) / (D.lms.progressSiswa.length || 1);
       box.innerHTML = kpi([
         ["Materi published", materiPub, "bi-journal-richtext", "teal", "seluruh kelas"],
-        ["Kuis aktif", kuisAktif, "bi-ui-checks-grid", "amber", "berlangsung"],
+        ["Agenda kalender", kalenderN, "bi-calendar3", "amber", "kegiatan akademik"],
         ["Rata progres", Math.round(rata) + "%", "bi-graph-up", "navy", "penyelesaian materi"],
         ["Pengumuman", peng, "bi-megaphone", "blue", "kelas & umum"],
       ]);
@@ -162,25 +165,25 @@
             "</td><td>" +
             p.persenMateri +
             "%</td><td>" +
-            p.tugasSelesai +
+            p.materiSelesai +
             "/" +
-            (p.tugasSelesai + p.tugasBelum) +
+            p.totalMateri +
             "</td></tr>"
           );
         })
         .join("");
       var head = document.getElementById("lmsDashListHead");
-      if (head) head.innerHTML = "<tr><th>Siswa</th><th>Kelas</th><th>Progres</th><th>Tugas</th></tr>";
+      if (head) head.innerHTML = "<tr><th>Siswa</th><th>Kelas</th><th>Progres</th><th>Materi selesai</th></tr>";
     } else {
       document.getElementById("lmsDashTitle").textContent = "Dashboard LMS";
       document.getElementById("lmsDashSub").textContent =
         peran() === "guru"
-          ? "Kelola materi, kuis, dan pengumuman untuk kelas yang Anda ampu."
+          ? "Kelola materi dan pengumuman untuk kelas yang Anda ampu."
           : "Ringkasan konfigurasi dan aktivitas Learning Management System.";
       box.innerHTML = kpi([
         ["Total materi", D.lms.materi.length, "bi-journal-richtext", "teal", materiPub + " published"],
-        ["Kuis & ujian", D.lms.kuis.length, "bi-ui-checks-grid", "amber", kuisAktif + " aktif"],
-        ["Upaya siswa", D.lms.upayaKuis.length, "bi-people", "navy", "pengerjaan tersimpan"],
+        ["Materi draft", materiDraft, "bi-pencil-square", "amber", "belum dipublikasikan"],
+        ["Rata progres", rataProgres + "%", "bi-graph-up", "navy", "penyelesaian materi"],
         ["Pengumuman", peng, "bi-megaphone", "blue", "semua kelas"],
       ]);
       list.innerHTML = D.lms.materi
@@ -333,293 +336,6 @@
     if (isSiswa()) ui().showToast("Materi ditandai sebagai dibaca. Progres diperbarui.");
   }
 
-  /* ——— Kuis ——— */
-  function filteredKuis() {
-    var kelas = (document.getElementById("lmsKuisKelas") || {}).value || "";
-    var jenis = (document.getElementById("lmsKuisJenis") || {}).value || "";
-    if (isSiswa()) kelas = siswaDemo().kelas;
-    return D.lms.kuis.filter(function (k) {
-      if (peran() === "guru" && k.mapel !== D.peranContoh.guru.mapel && k.guru !== D.peranContoh.guru.nama) {
-        if (k.mapel !== D.peranContoh.guru.mapel) return false;
-      }
-      if (kelas && k.kelas !== kelas) return false;
-      if (jenis && k.jenis !== jenis) return false;
-      return true;
-    });
-  }
-
-  function renderKuis() {
-    var rows = filteredKuis();
-    var body = document.getElementById("lmsKuisBody");
-    if (!body) return;
-    body.innerHTML = rows.length
-      ? rows
-          .map(function (k) {
-            var upaya = null;
-            if (isSiswa()) {
-              upaya = D.lms.upayaKuis.filter(function (u) {
-                return u.kuisId === k.id && u.nis === siswaDemo().nis;
-              })[0];
-            }
-            var aksi = "";
-            if (isSiswa()) {
-              if (upaya) {
-                aksi =
-                  '<span class="pill pill-success">Nilai PG: ' +
-                  (upaya.nilaiPg != null ? upaya.nilaiPg : "—") +
-                  "</span>";
-              } else if (k.status === "Aktif") {
-                aksi =
-                  '<button class="btn btn-sm btn-primary" type="button" data-lms-mulai-kuis="' +
-                  esc(k.id) +
-                  '">Kerjakan</button>';
-              } else {
-                aksi = ui().pill("muted", "Ditutup");
-              }
-            } else {
-              aksi =
-                '<button class="btn btn-sm btn-outline-secondary" type="button" data-lms-hasil-kuis="' +
-                esc(k.id) +
-                '">Hasil</button>';
-            }
-            return (
-              "<tr><td class=\"name-cell\">" +
-              esc(k.judul) +
-              "</td><td>" +
-              esc(k.mapel) +
-              "</td><td>" +
-              esc(k.kelas) +
-              "</td><td>" +
-              esc(k.jenis) +
-              "</td><td>" +
-              k.durasiMenit +
-              " mnt</td><td>" +
-              esc(k.batasWaktu) +
-              "</td><td>" +
-              statusPill(k.status) +
-              "</td><td>" +
-              aksi +
-              "</td></tr>"
-            );
-          })
-          .join("")
-      : ui().emptyRow(8);
-    var btn = document.getElementById("btnLmsBuatKuis");
-    if (btn) btn.hidden = !bolehKelola() || peran() === "admin";
-    if (peran() === "guru" && btn) btn.hidden = false;
-  }
-
-  function mulaiKuis(id) {
-    if (!isSiswa()) return;
-    var k = D.lms.kuis.filter(function (x) {
-      return x.id === id;
-    })[0];
-    if (!k || k.status !== "Aktif") return;
-    var exist = D.lms.upayaKuis.filter(function (u) {
-      return u.kuisId === id && u.nis === siswaDemo().nis;
-    })[0];
-    if (exist) {
-      ui().showToast("Anda sudah mengerjakan kuis ini.");
-      return;
-    }
-    quizState = {
-      kuisId: id,
-      answers: {},
-      sisaDetik: k.durasiMenit * 60,
-      started: Date.now(),
-    };
-    ui().showPage("lms-kerjakan");
-  }
-
-  function renderKerjakan() {
-    var wrap = document.getElementById("lmsKerjakanWrap");
-    if (!wrap) return;
-    if (!isSiswa() || !quizState) {
-      wrap.innerHTML =
-        '<div class="panel"><div class="panel-body"><p class="empty-hint">Tidak ada sesi pengerjaan. Buka menu Kuis &amp; Ujian lalu pilih <strong>Kerjakan</strong>.</p></div></div>';
-      return;
-    }
-    var k = D.lms.kuis.filter(function (x) {
-      return x.id === quizState.kuisId;
-    })[0];
-    if (!k) return;
-
-    var soalHtml = k.soal
-      .map(function (s, idx) {
-        if (s.tipe === "pg") {
-          return (
-            '<div class="lms-soal panel" style="margin-bottom:12px"><div class="panel-body"><div class="kpi-label">Soal ' +
-            (idx + 1) +
-            " · Pilihan ganda</div><p class=\"name-cell\" style=\"margin:8px 0 12px\">" +
-            esc(s.teks) +
-            "</p>" +
-            s.opsi
-              .map(function (o, oi) {
-                var checked = quizState.answers[s.id] === oi ? " checked" : "";
-                return (
-                  '<label class="lms-opsi"><input type="radio" name="' +
-                  esc(s.id) +
-                  '" value="' +
-                  oi +
-                  '"' +
-                  checked +
-                  " /> " +
-                  esc(o) +
-                  "</label>"
-                );
-              })
-              .join("") +
-            "</div></div>"
-          );
-        }
-        return (
-          '<div class="lms-soal panel" style="margin-bottom:12px"><div class="panel-body"><div class="kpi-label">Soal ' +
-          (idx + 1) +
-          ' · Esai</div><p class="name-cell" style="margin:8px 0 12px">' +
-          esc(s.teks) +
-          '</p><textarea class="form-control" rows="3" data-esai="' +
-          esc(s.id) +
-          '" placeholder="Tulis jawaban…">' +
-          esc(quizState.answers[s.id] || "") +
-          "</textarea><p class=\"slot-meta\" style=\"margin-top:6px\">Esai dinilai manual oleh guru (simulasi).</p></div></div>"
-        );
-      })
-      .join("");
-
-    wrap.innerHTML =
-      '<div class="page-header"><div><h1>' +
-      esc(k.judul) +
-      "</h1><p>" +
-      esc(k.mapel) +
-      " · " +
-      esc(k.kelas) +
-      " · " +
-      k.soal.length +
-      ' soal</p></div><div class="lms-timer" id="lmsTimer">—</div></div>' +
-      soalHtml +
-      '<div style="display:flex;gap:8px;margin-top:8px"><button class="btn btn-primary" type="button" id="btnLmsKumpulKuis">Kumpulkan jawaban</button><button class="btn btn-outline-secondary" type="button" id="btnLmsBatalKuis">Batal</button></div>';
-
-    updateTimerLabel();
-    if (quizTimer) clearInterval(quizTimer);
-    quizTimer = setInterval(function () {
-      if (!quizState) return;
-      quizState.sisaDetik -= 1;
-      updateTimerLabel();
-      if (quizState.sisaDetik <= 0) {
-        clearInterval(quizTimer);
-        quizTimer = null;
-        kumpulkanKuis(true);
-      }
-    }, 1000);
-
-    document.getElementById("btnLmsKumpulKuis").addEventListener("click", function () {
-      kumpulkanKuis(false);
-    });
-    document.getElementById("btnLmsBatalKuis").addEventListener("click", function () {
-      if (!confirm("Batalkan pengerjaan? Jawaban tidak disimpan.")) return;
-      stopQuiz();
-      ui().showPage("lms-kuis");
-    });
-    wrap.querySelectorAll('input[type="radio"]').forEach(function (inp) {
-      inp.addEventListener("change", function () {
-        quizState.answers[inp.name] = Number(inp.value);
-      });
-    });
-    wrap.querySelectorAll("[data-esai]").forEach(function (ta) {
-      ta.addEventListener("input", function () {
-        quizState.answers[ta.getAttribute("data-esai")] = ta.value;
-      });
-    });
-  }
-
-  function updateTimerLabel() {
-    var el = document.getElementById("lmsTimer");
-    if (!el || !quizState) return;
-    var s = Math.max(0, quizState.sisaDetik);
-    var m = Math.floor(s / 60);
-    var d = s % 60;
-    el.textContent = (m < 10 ? "0" : "") + m + ":" + (d < 10 ? "0" : "") + d;
-    el.classList.toggle("lms-timer-warn", s <= 60);
-  }
-
-  function stopQuiz() {
-    if (quizTimer) clearInterval(quizTimer);
-    quizTimer = null;
-    quizState = null;
-  }
-
-  function kumpulkanKuis(otomatis) {
-    if (!quizState) return;
-    var k = D.lms.kuis.filter(function (x) {
-      return x.id === quizState.kuisId;
-    })[0];
-    if (!k) return;
-    var pg = k.soal.filter(function (s) {
-      return s.tipe === "pg";
-    });
-    var benar = 0;
-    pg.forEach(function (s) {
-      if (quizState.answers[s.id] === s.kunci) benar += 1;
-    });
-    var nilaiPg = pg.length ? Math.round((benar / pg.length) * 100) : null;
-    var s = siswaDemo();
-    D.lms.upayaKuis.push({
-      id: "uk-" + Date.now(),
-      kuisId: k.id,
-      nis: s.nis,
-      nama: s.nama,
-      kelas: s.kelas,
-      nilaiPg: nilaiPg,
-      nilaiEsai: null,
-      nilaiAkhir: nilaiPg,
-      status: "Selesai",
-      dikerjakanPada: "2026-10-29 " + new Date().toTimeString().slice(0, 5),
-      jawaban: Object.assign({}, quizState.answers),
-    });
-    if (D.lms.refreshProgress) D.lms.refreshProgress();
-    saveState();
-    stopQuiz();
-    ui().showToast(
-      (otomatis ? "Waktu habis. " : "") +
-        "Kuis dikumpulkan. Penilaian otomatis PG: " +
-        (nilaiPg != null ? nilaiPg : "—") +
-        ". Esai menunggu guru."
-    );
-    ui().showPage("lms-kuis");
-  }
-
-  function showHasilKuis(id) {
-    var rows = D.lms.upayaKuis.filter(function (u) {
-      return u.kuisId === id;
-    });
-    var k = D.lms.kuis.filter(function (x) {
-      return x.id === id;
-    })[0];
-    document.getElementById("lmsHasilKuisTitle").textContent = k ? k.judul : "Hasil kuis";
-    document.getElementById("lmsHasilKuisBody").innerHTML = rows.length
-      ? rows
-          .map(function (u) {
-            return (
-              "<tr><td>" +
-              esc(u.nama) +
-              "</td><td>" +
-              esc(u.nis) +
-              "</td><td>" +
-              (u.nilaiPg != null ? u.nilaiPg : "—") +
-              "</td><td>" +
-              (u.nilaiEsai != null ? u.nilaiEsai : "Belum") +
-              "</td><td>" +
-              (u.nilaiAkhir != null ? u.nilaiAkhir : "—") +
-              "</td><td>" +
-              esc(u.dikerjakanPada) +
-              "</td></tr>"
-            );
-          })
-          .join("")
-      : ui().emptyRow(6, "Belum ada siswa yang mengerjakan.");
-    bootstrap.Modal.getOrCreateInstance(document.getElementById("modalLmsHasilKuis")).show();
-  }
-
   /* ——— Progress ——— */
   function renderProgress() {
     var list = D.lms.progressSiswa;
@@ -643,9 +359,9 @@
       if (isSiswa() || list.length === 1) {
         kpiBox.innerHTML = kpi([
           ["Progres materi", p0.persenMateri + "%", "bi-journal-check", "teal", p0.materiSelesai + "/" + p0.totalMateri],
-          ["Tugas selesai", p0.tugasSelesai, "bi-check2-circle", "navy", "dikumpulkan"],
-          ["Tugas belum", p0.tugasBelum, "bi-journal-x", "amber", "outstanding"],
-          ["Riwayat kuis", p0.riwayatKuis.length, "bi-ui-checks", "blue", "percobaan"],
+          ["Materi selesai", p0.materiSelesai, "bi-check2-circle", "navy", "dibaca"],
+          ["Materi belum", p0.totalMateri - p0.materiSelesai, "bi-journal-x", "amber", "belum dibuka"],
+          ["Total materi", p0.totalMateri, "bi-journal-richtext", "blue", "kelas " + p0.kelas],
         ]);
       } else {
         var avg = Math.round(
@@ -656,10 +372,10 @@
         kpiBox.innerHTML = kpi([
           ["Siswa dipantau", list.length, "bi-people", "navy", "filter aktif"],
           ["Rata progres", avg + "%", "bi-bar-chart", "teal", "materi"],
-          ["Total tugas belum", list.reduce(function (a, x) {
-            return a + x.tugasBelum;
-          }, 0), "bi-journal-x", "amber", "semua siswa"],
-          ["Upaya kuis", D.lms.upayaKuis.length, "bi-ui-checks", "blue", "sekolah"],
+          ["Materi selesai", list.reduce(function (a, x) {
+            return a + x.materiSelesai;
+          }, 0), "bi-check2-circle", "amber", "semua siswa"],
+          ["Pengumuman", D.lms.pengumuman.length, "bi-megaphone", "blue", "kelas & umum"],
         ]);
       }
     }
@@ -678,17 +394,9 @@
             '%"></span></div> ' +
             p.persenMateri +
             "%</td><td>" +
-            p.tugasSelesai +
-            "</td><td>" +
-            p.tugasBelum +
-            "</td><td>" +
-            (p.riwayatKuis.length
-              ? p.riwayatKuis
-                  .map(function (r) {
-                    return esc(r.judul) + " (" + r.nilai + ")";
-                  })
-                  .join(", ")
-              : "—") +
+            p.materiSelesai +
+            "/" +
+            p.totalMateri +
             "</td></tr>"
           );
         })
@@ -830,7 +538,7 @@
         return m.status === "Published";
       }).length, "bi-journal-richtext", "teal", "konten digital"],
       ["Rata penyelesaian", avg + "%", "bi-graph-up-arrow", "amber", "materi siswa"],
-      ["Kuis dikumpulkan", D.lms.upayaKuis.length, "bi-ui-checks-grid", "blue", "upaya"],
+      ["Pengumuman", D.lms.pengumuman.length, "bi-megaphone", "blue", "kelas & umum"],
     ]);
     document.getElementById("lmsLaporanBody").innerHTML = D.lms.progressSiswa
       .map(function (p) {
@@ -843,9 +551,9 @@
           "</td><td>" +
           p.persenMateri +
           "%</td><td>" +
-          p.tugasBelum +
-          "</td><td>" +
-          p.riwayatKuis.length +
+          p.materiSelesai +
+          "/" +
+          p.totalMateri +
           "</td><td>" +
           status +
           "</td></tr>"
@@ -855,7 +563,7 @@
   }
 
   function fillFilters() {
-    ["lmsMateriKelas", "lmsKuisKelas", "lmsProgressKelas", "lmsPengKelas"].forEach(function (id) {
+    ["lmsMateriKelas", "lmsProgressKelas", "lmsPengKelas"].forEach(function (id) {
       var el = document.getElementById(id);
       if (!el) return;
       ui().fillSelect(el, D.kelas, "Semua kelas");
@@ -885,7 +593,6 @@
     applyRoleUi();
     if (!page || page === "lms-dashboard") renderDashboard();
     if (!page || page === "lms-materi") renderMateri();
-    if (!page || page === "lms-kuis") renderKuis();
     if (!page || page === "lms-progress") renderProgress();
     if (!page || page === "lms-pengumuman") renderPengumuman();
     if (!page || page === "lms-kalender") renderKalender();
@@ -898,10 +605,6 @@
       if (!el) return;
       el.addEventListener("change", renderMateri);
       el.addEventListener("input", renderMateri);
-    });
-    ["lmsKuisKelas", "lmsKuisJenis"].forEach(function (id) {
-      var el = document.getElementById(id);
-      if (el) el.addEventListener("change", renderKuis);
     });
     var pk = document.getElementById("lmsProgressKelas");
     if (pk) pk.addEventListener("change", renderProgress);
@@ -954,50 +657,6 @@
       ui().showToast("Materi ditambahkan (simulasi upload — berkas tidak dikirim ke server).");
     });
 
-    document.getElementById("formLmsKuis").addEventListener("submit", function (e) {
-      e.preventDefault();
-      if (peran() !== "guru" && peran() !== "admin") return;
-      var judul = document.getElementById("lkJudul").value.trim();
-      if (!judul) return;
-      var pgTeks = document.getElementById("lkPgTeks").value.trim();
-      var esaiTeks = document.getElementById("lkEsaiTeks").value.trim();
-      var opsi = [
-        document.getElementById("lkOpsi0").value.trim(),
-        document.getElementById("lkOpsi1").value.trim(),
-        document.getElementById("lkOpsi2").value.trim(),
-        document.getElementById("lkOpsi3").value.trim(),
-      ];
-      var kunci = Number(document.getElementById("lkKunci").value) || 0;
-      var soal = [];
-      if (pgTeks) {
-        soal.push({ id: "ns-pg", tipe: "pg", teks: pgTeks, opsi: opsi, kunci: kunci });
-      }
-      if (esaiTeks) {
-        soal.push({ id: "ns-esai", tipe: "esai", teks: esaiTeks, kunci: null });
-      }
-      if (!soal.length) {
-        ui().showToast("Isi minimal satu soal PG atau esai.");
-        return;
-      }
-      D.lms.kuis.unshift({
-        id: "k-" + Date.now(),
-        judul: judul,
-        mapel: document.getElementById("lkMapel").value,
-        kelas: document.getElementById("lkKelas").value,
-        jenis: document.getElementById("lkJenis").value,
-        durasiMenit: Number(document.getElementById("lkDurasi").value) || 20,
-        batasWaktu: document.getElementById("lkBatas").value || "2026-11-15 16:00",
-        status: "Aktif",
-        guru: D.peranContoh.guru.nama,
-        soal: soal,
-      });
-      saveState();
-      bootstrap.Modal.getInstance(document.getElementById("modalLmsKuis")).hide();
-      e.target.reset();
-      renderKuis();
-      ui().showToast("Kuis/ujian dibuat dan siap dikerjakan siswa.");
-    });
-
     document.getElementById("formLmsPeng").addEventListener("submit", function (e) {
       e.preventDefault();
       var judul = document.getElementById("lpJudul").value.trim();
@@ -1041,15 +700,11 @@
           ui().showToast("Status materi: " + m.status);
         }
       }
-      var mk = e.target.closest("[data-lms-mulai-kuis]");
-      if (mk) mulaiKuis(mk.getAttribute("data-lms-mulai-kuis"));
-      var hk = e.target.closest("[data-lms-hasil-kuis]");
-      if (hk) showHasilKuis(hk.getAttribute("data-lms-hasil-kuis"));
     });
   }
 
   function initModalsSelects() {
-    ["lmKelas", "lkKelas", "lpKelas"].forEach(function (id) {
+    ["lmKelas", "lpKelas"].forEach(function (id) {
       var el = document.getElementById(id);
       if (!el) return;
       var extra = id === "lpKelas" ? '<option value="Semua">Semua kelas</option>' : "";
@@ -1061,7 +716,7 @@
           })
           .join("");
     });
-    ["lmMapel", "lkMapel"].forEach(function (id) {
+    ["lmMapel"].forEach(function (id) {
       var el = document.getElementById(id);
       if (!el) return;
       el.innerHTML = D.mapel
@@ -1090,7 +745,6 @@
 
   function onRoleChange() {
     if (!D || !D.lms) return;
-    stopQuiz();
     fillFilters();
     applyRoleUi();
   }

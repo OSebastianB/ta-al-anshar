@@ -169,12 +169,6 @@
     document.getElementById("detailHadirRingkas").textContent =
       "Hadir " + c.Hadir + " · Terlambat " + c.Terlambat + " · Izin " + c.Izin + " · Sakit " + c.Sakit + " · Alpa " + c.Alpa +
       " · Kehadiran " + String(s.persenHadir).replace(".", ",") + "%";
-    var tugas = D.pengumpulan.filter(function (p) { return p.nis === s.nis; });
-    document.getElementById("detailTugasBody").innerHTML = tugas
-      .map(function (p) {
-        return "<tr><td>" + p.tugas + "</td><td>" + p.jenis + "</td><td>" + p.tanggal + "</td><td>" + ui().statusKumpulPill(p.status) + "</td><td>" + (p.nilai === null ? "—" : p.nilai) + "</td></tr>";
-      })
-      .join("");
     var alasan = document.getElementById("detailAlasan");
     if (s.alasanList.length) {
       alasan.innerHTML = "<p class=\"panel-sub\">Perlu ditinjau guru</p>" + chips(s.alasanList) + "<p class=\"panel-sub\" style=\"margin-top:8px\">" + s.tindakLanjut + "</p>";

@@ -91,17 +91,8 @@
             <button class="nav-item" data-page="pegawai" data-akses="admin" type="button">
               <i class="bi bi-person-badge"></i><span>Kehadiran Pegawai</span>
             </button>
-            <button class="nav-item" data-page="tugas" data-akses="guru" type="button">
-              <i class="bi bi-journal-text"></i><span>Manajemen Tugas</span>
-            </button>
-            <button class="nav-item" data-page="pengumpulan" data-akses="guru" type="button">
-              <i class="bi bi-inbox"></i><span>Pengumpulan Tugas</span>
-            </button>
             <button class="nav-item" data-page="lms-materi" data-akses="admin guru kepsek" type="button">
               <i class="bi bi-journal-richtext"></i><span>Materi Pembelajaran</span>
-            </button>
-            <button class="nav-item" data-page="lms-kuis" data-akses="admin guru" type="button">
-              <i class="bi bi-ui-checks-grid"></i><span>Kuis &amp; Ujian</span>
             </button>
             <button class="nav-item" data-page="lms-kalender" data-akses="admin guru kepsek" type="button">
               <i class="bi bi-calendar3"></i><span>Kalender Akademik</span>
@@ -110,9 +101,6 @@
 
           <div class="nav-group" data-nav-group>
             <div class="nav-label">Evaluasi</div>
-            <button class="nav-item" data-page="penilaian" data-akses="guru" type="button">
-              <i class="bi bi-check2-square"></i><span>Penilaian</span>
-            </button>
             <button class="nav-item" data-page="rekap" data-akses="admin guru kepsek" type="button">
               <i class="bi bi-table"></i><span>Rekap Nilai</span>
             </button>
@@ -196,7 +184,7 @@
           </div>
           <div class="global-search d-none d-md-block">
             <i class="bi bi-search"></i>
-            <input type="search" placeholder="Cari siswa, kelas, atau tugas..." aria-label="Pencarian" />
+            <input type="search" placeholder="Cari siswa atau kelas..." aria-label="Pencarian" />
             <kbd>⌘ K</kbd>
           </div>
           <div class="topbar-right">
@@ -552,15 +540,6 @@
                   </table>
                 </div>
               </div>
-              <div class="panel">
-                <div class="panel-head"><div><h2>Status Tugas</h2><p class="panel-sub">Pengumpulan tugas anak yang tertaut.</p></div></div>
-                <div class="table-wrap">
-                  <table class="data-table">
-                    <thead><tr><th>Tugas</th><th>Mapel</th><th>Status</th><th>Nilai</th></tr></thead>
-                    <tbody id="portalTugasBody"></tbody>
-                  </table>
-                </div>
-              </div>
             </div>
             <div class="split-2" style="margin-top:16px">
               <div class="panel">
@@ -835,19 +814,6 @@
                   </div>
                 </div>
               </div>
-              <div class="panel">
-                <div class="panel-head">
-                  <div>
-                    <h2>Status Pengumpulan Tugas</h2>
-                    <p class="panel-sub" id="donutSub">Ringkasan pengumpulan pada data contoh.</p>
-                  </div>
-                </div>
-                <div class="panel-body">
-                  <div class="chart-box">
-                    <canvas id="chartDonutPengumpulan"></canvas>
-                  </div>
-                </div>
-              </div>
             </div>
             <div data-role-widget="admin" hidden>
               <div class="split-2">
@@ -914,219 +880,6 @@
                 </table>
               </div>
             </div>
-          </section>
-
-          <!-- 2. Manajemen Tugas -->
-          <section class="page" id="page-tugas">
-            <div class="page-header">
-              <div>
-                <h1>Manajemen Tugas</h1>
-                <p>Kelola tugas, kuis, dan ujian berdasarkan kelas dan mata pelajaran.</p>
-              </div>
-              <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalBuatTugas" data-izin="buat-tugas">
-                <i class="bi bi-plus-lg"></i> Buat Tugas
-              </button>
-            </div>
-            <div class="filter-bar">
-              <div class="search-wrap">
-                <i class="bi bi-search"></i>
-                <input class="form-control" id="tugasSearch" type="search" placeholder="Cari judul tugas…" />
-              </div>
-              <select class="form-select" id="tugasFilterKelas"></select>
-              <select class="form-select" id="tugasFilterMapel"></select>
-              <select class="form-select" id="tugasFilterStatus">
-                <option value="">Semua status</option>
-                <option value="Aktif">Aktif</option>
-                <option value="Selesai">Selesai</option>
-                <option value="Dijadwalkan">Dijadwalkan</option>
-              </select>
-            </div>
-            <div class="panel">
-              <div class="table-wrap">
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>Judul Tugas</th>
-                      <th>Mata Pelajaran</th>
-                      <th>Kelas</th>
-                      <th>Tenggat</th>
-                      <th>Jenis Penilaian</th>
-                      <th>Status</th>
-                      <th>Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tugasTableBody"></tbody>
-                </table>
-              </div>
-              <div class="table-foot" id="tugasTableFoot"></div>
-            </div>
-          </section>
-
-          <!-- 3. Pengumpulan -->
-          <section class="page" id="page-pengumpulan">
-            <div class="page-header">
-              <div>
-                <h1>Pengumpulan Tugas</h1>
-                <p>Pantau status pengumpulan tugas setiap siswa.</p>
-              </div>
-            </div>
-            <div class="kpi-grid" id="pengumpulanKpi"></div>
-            <div class="filter-bar">
-              <select class="form-select" id="kumpulFilterKelas"></select>
-              <select class="form-select" id="kumpulFilterTugas"></select>
-              <select class="form-select" id="kumpulFilterStatus">
-                <option value="">Semua status</option>
-                <option value="Sudah Dikumpulkan">Sudah Dikumpulkan</option>
-                <option value="Terlambat">Terlambat</option>
-                <option value="Belum Dikumpulkan">Belum Dikumpulkan</option>
-              </select>
-            </div>
-            <div class="panel">
-              <div class="table-wrap">
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>Nama Siswa</th>
-                      <th>NIS</th>
-                      <th>Kelas</th>
-                      <th>Nama Tugas</th>
-                      <th>Jenis Pengumpulan</th>
-                      <th>Tanggal Pengumpulan</th>
-                      <th>Status</th>
-                      <th>Status Penilaian</th>
-                      <th>Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody id="kumpulTableBody"></tbody>
-                </table>
-              </div>
-              <div class="table-foot" id="kumpulTableFoot"></div>
-            </div>
-          </section>
-
-          <!-- 4. Penilaian -->
-          <section class="page" id="page-penilaian">
-            <div class="page-header">
-              <div>
-                <h1>Penilaian Akademik</h1>
-                <p>Kelola penilaian otomatis dan manual dalam satu halaman.</p>
-              </div>
-            </div>
-            <div class="seg-tabs" role="tablist">
-              <button class="seg-btn active" type="button" data-tab="otomatis">Penilaian Otomatis</button>
-              <button class="seg-btn" type="button" data-tab="manual">Penilaian Manual</button>
-            </div>
-
-            <div id="tab-otomatis">
-              <div class="split-2">
-                <div class="panel">
-                  <div class="panel-head"><h2>Daftar Kuis Objektif</h2></div>
-                  <div class="panel-body" style="padding-bottom: 8px">
-                    <div class="table-wrap">
-                      <table class="data-table">
-                        <thead>
-                          <tr>
-                            <th>Nama Kuis</th>
-                            <th>Mapel</th>
-                            <th>Kelas</th>
-                            <th>Jumlah Soal</th>
-                            <th>Jumlah Siswa</th>
-                            <th>Status Penilaian</th>
-                            <th>Aksi</th>
-                          </tr>
-                        </thead>
-                        <tbody id="kuisTableBody"></tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-                <div class="panel">
-                  <div class="panel-head">
-                    <h2 id="hasilTitle">Contoh Hasil Penilaian Otomatis</h2>
-                  </div>
-                  <div class="panel-body">
-                    <div class="flow-steps">
-                      <div class="flow-step"><i class="bi bi-pencil-square"></i> Jawaban siswa</div>
-                      <span class="flow-arrow"><i class="bi bi-arrow-right"></i></span>
-                      <div class="flow-step"><i class="bi bi-key"></i> Kunci jawaban</div>
-                      <span class="flow-arrow"><i class="bi bi-arrow-right"></i></span>
-                      <div class="flow-step"><i class="bi bi-calculator"></i> Skor dihitung otomatis</div>
-                    </div>
-                    <div class="score-pills">
-                      <div class="score-chip">
-                        <div class="sc-l">Total soal</div>
-                        <div class="sc-v" id="hasilTotal">20</div>
-                      </div>
-                      <div class="score-chip ok">
-                        <div class="sc-l">Benar</div>
-                        <div class="sc-v" id="hasilBenar">16</div>
-                      </div>
-                      <div class="score-chip bad">
-                        <div class="sc-l">Salah</div>
-                        <div class="sc-v" id="hasilSalah">4</div>
-                      </div>
-                      <div class="score-chip">
-                        <div class="sc-l">Skor</div>
-                        <div class="sc-v" id="hasilSkor">80/100</div>
-                      </div>
-                    </div>
-                    <div id="hasilSoal"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div id="tab-manual" hidden>
-              <div class="split-2">
-                <div class="panel">
-                  <div class="panel-head"><h2>Penilaian Esai &amp; Tugas Fisik</h2></div>
-                  <div class="panel-body" style="padding-bottom: 8px">
-                    <div class="table-wrap">
-                      <table class="data-table">
-                        <thead>
-                          <tr>
-                            <th>Nama Siswa</th>
-                            <th>Tugas</th>
-                            <th>Skor Maksimal</th>
-                            <th>Nilai</th>
-                            <th>Catatan Guru</th>
-                            <th>Aksi</th>
-                          </tr>
-                        </thead>
-                        <tbody id="manualTableBody"></tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-                <div class="panel">
-                  <div class="panel-head"><h2>Form Penilaian Manual</h2></div>
-                  <div class="panel-body">
-                    <form id="formManual" autocomplete="off">
-                      <div class="mb-3">
-                        <label class="form-label" for="manualSiswa">Siswa</label>
-                        <input class="form-control" id="manualSiswa" type="text" readonly />
-                      </div>
-                      <div class="mb-3">
-                        <label class="form-label" for="manualTugas">Tugas</label>
-                        <input class="form-control" id="manualTugas" type="text" readonly />
-                      </div>
-                      <div class="mb-3">
-                        <label class="form-label" for="manualNilai">Nilai</label>
-                        <input class="form-control" id="manualNilai" type="number" min="0" max="100" placeholder="0–100" />
-                      </div>
-                      <div class="mb-3">
-                        <label class="form-label" for="manualCatatan">Catatan guru</label>
-                        <textarea class="form-control" id="manualCatatan" rows="3" placeholder="Umpan balik untuk siswa"></textarea>
-                      </div>
-                      <button class="btn btn-primary" type="submit" data-izin="simpan-nilai">Simpan nilai</button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p class="panel-note" style="padding-left: 0; margin-top: 12px">
-              Soal objektif dapat dinilai otomatis berdasarkan kunci jawaban. Penilaian esai dan tugas fisik tetap dilakukan oleh guru.
-            </p>
           </section>
 
           <!-- 5. Rekap -->
@@ -1396,15 +1149,6 @@
                 </div>
               </div>
             </div>
-            <div class="panel">
-              <div class="panel-head"><h2>Riwayat Pengumpulan Tugas</h2></div>
-              <div class="table-wrap">
-                <table class="data-table">
-                  <thead><tr><th>Tugas</th><th>Jenis</th><th>Tanggal</th><th>Status</th><th>Nilai</th></tr></thead>
-                  <tbody id="detailTugasBody"></tbody>
-                </table>
-              </div>
-            </div>
           </section>
 
           <!-- LMS -->
@@ -1470,41 +1214,11 @@
             </div>
           </section>
 
-          <section class="page" id="page-lms-kuis">
-            <div class="page-header">
-              <div>
-                <h1>Kuis &amp; Ujian Online</h1>
-                <p>Buat dan kerjakan kuis/ujian dengan soal pilihan ganda serta esai.</p>
-              </div>
-              <button class="btn btn-primary" type="button" id="btnLmsBuatKuis" data-izin="lms-buat-kuis" data-bs-toggle="modal" data-bs-target="#modalLmsKuis">
-                <i class="bi bi-plus-lg"></i> Buat Kuis/Ujian
-              </button>
-            </div>
-            <div class="filter-bar">
-              <select class="form-select" id="lmsKuisKelas"></select>
-              <select class="form-select" id="lmsKuisJenis">
-                <option value="">Semua jenis</option>
-                <option value="Kuis">Kuis</option>
-                <option value="Ujian">Ujian</option>
-              </select>
-            </div>
-            <div class="panel">
-              <div class="table-wrap">
-                <table class="data-table">
-                  <thead>
-                    <tr><th>Judul</th><th>Mapel</th><th>Kelas</th><th>Jenis</th><th>Durasi</th><th>Batas waktu</th><th>Status</th><th>Aksi</th></tr>
-                  </thead>
-                  <tbody id="lmsKuisBody"></tbody>
-                </table>
-              </div>
-            </div>
-          </section>
-
           <section class="page" id="page-lms-progress">
             <div class="page-header">
               <div>
                 <h1>Progress Pembelajaran</h1>
-                <p>Persentase materi, status tugas, dan riwayat nilai kuis/ujian.</p>
+                <p>Persentase penyelesaian materi pembelajaran per siswa dan kelas.</p>
               </div>
             </div>
             <div class="filter-bar">
@@ -1521,7 +1235,7 @@
                 <div class="table-wrap table-wrap-fill">
                   <table class="data-table">
                     <thead>
-                      <tr><th>Nama</th><th>Kelas</th><th>Materi</th><th>Tugas ✓</th><th>Belum</th><th>Kuis</th></tr>
+                      <tr><th>Nama</th><th>Kelas</th><th>Progres</th><th>Selesai</th></tr>
                     </thead>
                     <tbody id="lmsProgressBody"></tbody>
                   </table>
@@ -1534,7 +1248,7 @@
             <div class="page-header">
               <div>
                 <h1>Pengumuman Kelas</h1>
-                <p>Informasi tugas, ujian, materi, dan pengumuman umum per kelas.</p>
+                <p>Informasi materi dan pengumuman umum per kelas.</p>
               </div>
               <button class="btn btn-primary" type="button" id="btnLmsBuatPeng" data-izin="lms-buat-pengumuman" data-bs-toggle="modal" data-bs-target="#modalLmsPeng">
                 <i class="bi bi-plus-lg"></i> Buat Pengumuman
@@ -1546,8 +1260,6 @@
                 <option value="">Semua kategori</option>
                 <option value="Umum">Umum</option>
                 <option value="Materi">Materi</option>
-                <option value="Tugas">Tugas</option>
-                <option value="Ujian">Ujian</option>
               </select>
             </div>
             <div id="lmsPengBody"></div>
@@ -1557,7 +1269,7 @@
             <div class="page-header">
               <div>
                 <h1>Kalender Akademik</h1>
-                <p>Jadwal pembelajaran, ujian, dan deadline tugas.</p>
+                <p>Jadwal pembelajaran dan kegiatan akademik.</p>
               </div>
               <div class="page-header-actions">
                 <button class="btn btn-outline-secondary" type="button" id="lmsCalPrev"><i class="bi bi-chevron-left"></i></button>
@@ -1570,8 +1282,7 @@
                 <div class="lms-cal-grid" id="lmsCalGrid"></div>
                 <div class="lms-cal-legend">
                   <span><i class="dot pembelajaran"></i> Pembelajaran</span>
-                  <span><i class="dot ujian"></i> Ujian</span>
-                  <span><i class="dot deadline"></i> Deadline</span>
+                  <span><i class="dot deadline"></i> Kegiatan</span>
                 </div>
               </div>
             </div>
@@ -1590,7 +1301,7 @@
             <div class="page-header">
               <div>
                 <h1>Laporan Pembelajaran LMS</h1>
-                <p>Monitoring penyelesaian materi dan aktivitas kuis untuk pimpinan sekolah.</p>
+                <p>Monitoring penyelesaian materi pembelajaran untuk pimpinan sekolah.</p>
               </div>
             </div>
             <div class="kpi-grid" id="lmsLaporanKpi"></div>
@@ -1598,7 +1309,7 @@
               <div class="panel-head"><h2>Status siswa</h2></div>
               <div class="table-wrap">
                 <table class="data-table">
-                  <thead><tr><th>Nama</th><th>Kelas</th><th>Progres materi</th><th>Tugas belum</th><th>Kuis</th><th>Status</th></tr></thead>
+                  <thead><tr><th>Nama</th><th>Kelas</th><th>Progres materi</th><th>Materi selesai</th><th>Status</th></tr></thead>
                   <tbody id="lmsLaporanBody"></tbody>
                 </table>
               </div>
@@ -1683,102 +1394,6 @@
               <button class="btn btn-primary" type="submit">Simpan catatan</button>
             </div>
           </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal: Buat Tugas -->
-    <div class="modal fade" id="modalBuatTugas" tabindex="-1" aria-labelledby="modalBuatTugasLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <form id="formBuatTugas" autocomplete="off">
-            <div class="modal-header">
-              <h2 class="modal-title" id="modalBuatTugasLabel">Buat Tugas</h2>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-            </div>
-            <div class="modal-body">
-              <div class="row g-3">
-                <div class="col-md-8">
-                  <label class="form-label" for="ftJudul">Judul tugas</label>
-                  <input class="form-control" id="ftJudul" required placeholder="Contoh: Kuis Pecahan" />
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label" for="ftJenis">Jenis penilaian</label>
-                  <select class="form-select" id="ftJenis">
-                    <option>Pilihan Ganda</option>
-                    <option>Esai</option>
-                    <option>Tugas Fisik</option>
-                  </select>
-                </div>
-                <div class="col-12">
-                  <label class="form-label" for="ftDeskripsi">Deskripsi</label>
-                  <textarea class="form-control" id="ftDeskripsi" rows="2" placeholder="Instruksi singkat untuk siswa"></textarea>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="ftMapel">Mata pelajaran</label>
-                  <select class="form-select" id="ftMapel"></select>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label" for="ftKelas">Kelas</label>
-                  <select class="form-select" id="ftKelas"></select>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label" for="ftTenggat">Tanggal tenggat</label>
-                  <input class="form-control" id="ftTenggat" type="date" value="2026-10-30" />
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label" for="ftBobot">Bobot nilai (%)</label>
-                  <input class="form-control" id="ftBobot" type="number" min="0" max="100" value="15" />
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label" for="ftSkor">Skor maksimal</label>
-                  <input class="form-control" id="ftSkor" type="number" min="1" value="100" />
-                </div>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Batal</button>
-              <button class="btn btn-primary" type="submit">Simpan</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal: Detail tugas -->
-    <div class="modal fade" id="modalDetailTugas" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h2 class="modal-title" id="detailTugasTitle">Detail Tugas</h2>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-          </div>
-          <div class="modal-body">
-            <div class="detail-grid" id="detailTugasBody"></div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Tutup</button>
-            <button class="btn btn-primary js-demo" type="button" data-izin="edit-tugas">Edit tugas</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal: Detail pengumpulan -->
-    <div class="modal fade" id="modalDetailKumpul" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h2 class="modal-title">Detail Pengumpulan</h2>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-          </div>
-          <div class="modal-body">
-            <div class="detail-grid" id="detailKumpulBody"></div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Tutup</button>
-            <button class="btn btn-primary js-demo" type="button">Buka berkas</button>
-          </div>
         </div>
       </div>
     </div>
@@ -1992,62 +1607,6 @@
       </div>
     </div>
 
-    <div class="modal fade" id="modalLmsKuis" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-          <form id="formLmsKuis" autocomplete="off">
-            <div class="modal-header">
-              <h2 class="modal-title">Buat Kuis / Ujian</h2>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-            </div>
-            <div class="modal-body">
-              <div class="row g-3">
-                <div class="col-12"><label class="form-label" for="lkJudul">Judul</label><input class="form-control" id="lkJudul" required /></div>
-                <div class="col-md-4"><label class="form-label" for="lkJenis">Jenis</label><select class="form-select" id="lkJenis"><option>Kuis</option><option>Ujian</option></select></div>
-                <div class="col-md-4"><label class="form-label" for="lkMapel">Mapel</label><select class="form-select" id="lkMapel"></select></div>
-                <div class="col-md-4"><label class="form-label" for="lkKelas">Kelas</label><select class="form-select" id="lkKelas"></select></div>
-                <div class="col-md-6"><label class="form-label" for="lkDurasi">Durasi (menit)</label><input class="form-control" id="lkDurasi" type="number" value="20" min="5" max="120" /></div>
-                <div class="col-md-6"><label class="form-label" for="lkBatas">Batas waktu</label><input class="form-control" id="lkBatas" value="2026-11-15 16:00" /></div>
-                <div class="col-12"><hr class="my-1" /><strong>Soal pilihan ganda</strong></div>
-                <div class="col-12"><label class="form-label" for="lkPgTeks">Pertanyaan PG</label><input class="form-control" id="lkPgTeks" placeholder="Contoh: Hasil 1/2 + 1/4 …" /></div>
-                <div class="col-md-3"><input class="form-control" id="lkOpsi0" placeholder="Opsi A" value="A" /></div>
-                <div class="col-md-3"><input class="form-control" id="lkOpsi1" placeholder="Opsi B" value="B" /></div>
-                <div class="col-md-3"><input class="form-control" id="lkOpsi2" placeholder="Opsi C" value="C" /></div>
-                <div class="col-md-3"><input class="form-control" id="lkOpsi3" placeholder="Opsi D" value="D" /></div>
-                <div class="col-md-4"><label class="form-label" for="lkKunci">Kunci (0–3)</label><input class="form-control" id="lkKunci" type="number" min="0" max="3" value="0" /></div>
-                <div class="col-12"><strong>Soal esai</strong></div>
-                <div class="col-12"><label class="form-label" for="lkEsaiTeks">Pertanyaan esai</label><textarea class="form-control" id="lkEsaiTeks" rows="2" placeholder="Opsional"></textarea></div>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Batal</button>
-              <button class="btn btn-primary" type="submit">Simpan kuis</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal fade" id="modalLmsHasilKuis" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h2 class="modal-title" id="lmsHasilKuisTitle">Hasil kuis</h2>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-          </div>
-          <div class="modal-body">
-            <div class="table-wrap">
-              <table class="data-table">
-                <thead><tr><th>Nama</th><th>NIS</th><th>Nilai PG</th><th>Esai</th><th>Akhir</th><th>Waktu</th></tr></thead>
-                <tbody id="lmsHasilKuisBody"></tbody>
-              </table>
-            </div>
-          </div>
-          <div class="modal-footer"><button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Tutup</button></div>
-        </div>
-      </div>
-    </div>
-
     <div class="modal fade" id="modalLmsPeng" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -2061,7 +1620,7 @@
                 <div class="col-12"><label class="form-label" for="lpJudul">Judul</label><input class="form-control" id="lpJudul" required /></div>
                 <div class="col-md-6"><label class="form-label" for="lpKelas">Kelas</label><select class="form-select" id="lpKelas"></select></div>
                 <div class="col-md-6"><label class="form-label" for="lpKategori">Kategori</label>
-                  <select class="form-select" id="lpKategori"><option>Umum</option><option>Materi</option><option>Tugas</option><option>Ujian</option></select>
+                  <select class="form-select" id="lpKategori"><option>Umum</option><option>Materi</option></select>
                 </div>
                 <div class="col-12"><label class="form-label" for="lpIsi">Isi</label><textarea class="form-control" id="lpIsi" rows="3" required></textarea></div>
               </div>

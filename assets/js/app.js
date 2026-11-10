@@ -2,9 +2,6 @@
   const D = window.APP_DATA;
   const PAGES = {
     dashboard: { title: "Dashboard Akademik", crumb: "Penilaian / Dashboard" },
-    tugas: { title: "Manajemen Tugas", crumb: "Penilaian / Manajemen Tugas" },
-    pengumpulan: { title: "Pengumpulan Tugas", crumb: "Penilaian / Pengumpulan" },
-    penilaian: { title: "Penilaian Akademik", crumb: "Penilaian / Penilaian" },
     rekap: { title: "Rekap Nilai Akademik", crumb: "Penilaian / Rekap Nilai" },
     analisis: { title: "Analisis Performa Akademik", crumb: "Penilaian / Analisis" },
     absensi: { title: "Dashboard Absensi", crumb: "Absensi / Dashboard" },
@@ -27,7 +24,6 @@
     alur: { title: "Alur Integrasi", crumb: "Integrasi / Alur Data" },
     "lms-dashboard": { title: "Dashboard LMS", crumb: "LMS / Dashboard" },
     "lms-materi": { title: "Materi Pembelajaran", crumb: "LMS / Materi" },
-    "lms-kuis": { title: "Kuis & Ujian Online", crumb: "LMS / Kuis" },
     "lms-progress": { title: "Progress Pembelajaran", crumb: "LMS / Progress" },
     "lms-pengumuman": { title: "Pengumuman Kelas", crumb: "LMS / Pengumuman" },
     "lms-kalender": { title: "Kalender Akademik", crumb: "LMS / Kalender" },
@@ -35,8 +31,6 @@
   };
 
   let toastInst;
-  let modalTugas;
-  let modalKumpul;
   let currentPage = "dashboard";
   let peranAktif = "guru";
   const SCOPE_GURU = D.peranContoh.guru;
@@ -65,7 +59,6 @@
         "bayar-riwayat",
         "lms-dashboard",
         "lms-materi",
-        "lms-kuis",
         "lms-progress",
         "lms-pengumuman",
         "lms-kalender",
@@ -78,9 +71,6 @@
         "tambah-jadwal": true,
         "generate-jadwal": true,
         "atur-penjadwalan": true,
-        "buat-tugas": false,
-        "edit-tugas": false,
-        "terima-kumpul": false,
         "isi-nilai": false,
         "simpan-nilai": false,
         "atur-ambang": false,
@@ -90,7 +80,6 @@
         "impor-bayar": true,
         "simulasi-notif": true,
         "lms-upload-materi": true,
-        "lms-buat-kuis": false,
         "lms-buat-pengumuman": true,
       },
     },
@@ -102,9 +91,6 @@
         "kehadiran",
         "jadwal",
         "rekap-absensi",
-        "tugas",
-        "pengumpulan",
-        "penilaian",
         "rekap",
         "analisis-dashboard",
         "perkembangan",
@@ -112,7 +98,6 @@
         "detail-siswa",
         "lms-dashboard",
         "lms-materi",
-        "lms-kuis",
         "lms-progress",
         "lms-pengumuman",
         "lms-kalender",
@@ -124,9 +109,6 @@
         "tambah-jadwal": false,
         "generate-jadwal": false,
         "atur-penjadwalan": false,
-        "buat-tugas": true,
-        "edit-tugas": true,
-        "terima-kumpul": true,
         "isi-nilai": true,
         "simpan-nilai": true,
         "atur-ambang": false,
@@ -136,7 +118,6 @@
         "impor-bayar": false,
         "simulasi-notif": false,
         "lms-upload-materi": true,
-        "lms-buat-kuis": true,
         "lms-buat-pengumuman": true,
       },
     },
@@ -159,9 +140,6 @@
         "tambah-jadwal": false,
         "generate-jadwal": false,
         "atur-penjadwalan": false,
-        "buat-tugas": false,
-        "edit-tugas": false,
-        "terima-kumpul": false,
         "isi-nilai": false,
         "simpan-nilai": false,
         "atur-ambang": false,
@@ -171,7 +149,6 @@
         "impor-bayar": false,
         "simulasi-notif": false,
         "lms-upload-materi": false,
-        "lms-buat-kuis": false,
         "lms-buat-pengumuman": true,
       },
     },
@@ -185,9 +162,6 @@
         "tambah-jadwal": false,
         "generate-jadwal": false,
         "atur-penjadwalan": false,
-        "buat-tugas": false,
-        "edit-tugas": false,
-        "terima-kumpul": false,
         "isi-nilai": false,
         "simpan-nilai": false,
         "atur-ambang": false,
@@ -197,7 +171,6 @@
         "impor-bayar": false,
         "simulasi-notif": false,
         "lms-upload-materi": false,
-        "lms-buat-kuis": false,
         "lms-buat-pengumuman": false,
       },
     },
@@ -473,13 +446,6 @@
     var mapelOpts = peranAktif === "guru" ? mapelDiampuGuru() : D.mapel.slice();
     var lockMapel = peranAktif === "guru";
     var lockKelasHadir = peranAktif === "guru";
-    fillSelectOptions($("tugasFilterKelas"), kelasOpts, "Semua kelas", false);
-    fillSelectOptions($("tugasFilterMapel"), mapelOpts, "Semua mapel", lockMapel);
-    fillSelectOptions($("kumpulFilterKelas"), kelasOpts, "Semua kelas", false);
-    var judulTugas = D.tugas.filter(inScopeTugas).map(function (t) {
-      return t.judul;
-    });
-    fillSelectOptions($("kumpulFilterTugas"), judulTugas, "Semua tugas", false);
     fillSelectOptions($("rekapFilterKelas"), kelasOpts, "Semua kelas", false);
     fillSelectOptions($("rekapFilterMapel"), mapelOpts, "Semua mapel", lockMapel);
     if ($("hadirKelas")) {
@@ -712,12 +678,11 @@
   }
 
   function renderGuruDashboard() {
-    var tugasGuru = D.tugas.filter(function (t) {
-      return t.mapel === SCOPE_GURU.mapel && t.status === "Aktif";
+    var lmsD = D.lms || { materi: [], pengumuman: [] };
+    var materiGuru = lmsD.materi.filter(function (m) {
+      return m.mapel === SCOPE_GURU.mapel;
     }).length;
-    var belumGuru = D.pengumpulan.filter(function (p) {
-      return p.mapel === SCOPE_GURU.mapel && p.penilaian === "Belum Dinilai" && p.status !== "Belum Dikumpulkan";
-    }).length;
+    var pengGuru = lmsD.pengumuman.length;
     var hadirKelas = D.kehadiran.filter(function (h) {
       return h.tanggal === D.hariIni && h.kelas === SCOPE_GURU.waliKelas && (h.status === "Hadir" || h.status === "Terlambat");
     }).length;
@@ -736,8 +701,8 @@
     }
     $("dashboardKpi").innerHTML = kpiHtml([
       { label: "Jadwal hari ini", value: jadwalHariIniGuru(), icon: "bi-calendar-week", tone: "navy", hint: D.hariIniNama },
-      { label: "Tugas aktif", value: tugasGuru, icon: "bi-journal-text", tone: "blue", hint: SCOPE_GURU.mapel },
-      { label: "Belum dinilai", value: belumGuru, icon: "bi-hourglass-split", tone: "amber", hint: "mapel saya" },
+      { label: "Materi LMS", value: materiGuru, icon: "bi-journal-richtext", tone: "blue", hint: SCOPE_GURU.mapel },
+      { label: "Pengumuman", value: pengGuru, icon: "bi-megaphone", tone: "amber", hint: "kelas & umum" },
       {
         label: "Hadir kelas wali",
         value: hadirKelas + "/" + totalWali,
@@ -1291,7 +1256,7 @@
       ],
       guru: [
         { ikon: "bi-clock", judul: "Ahmad Fauzan terlambat di kelas V-A", waktu: "Hari ini, 07.18" },
-        { ikon: "bi-clipboard-check", judul: "Pengumpulan Matematika menunggu penilaian", waktu: "Hari ini, 08.15" },
+        { ikon: "bi-clipboard-check", judul: "Materi Matematika baru tersedia di LMS", waktu: "Hari ini, 08.15" },
         { ikon: "bi-person-exclamation", judul: perhatianUntukPeran().length + " siswa kelas wali perlu ditinjau", waktu: "Oktober 2026" },
       ],
       orangtua: anak
@@ -1314,14 +1279,8 @@
     applyIzinUi();
     if (window.ModulJadwal && ModulJadwal.onRoleChange) ModulJadwal.onRoleChange();
     if (window.ModulLms && ModulLms.onRoleChange) ModulLms.onRoleChange();
-    if ($("tugasFilterKelas") && peran !== "kepsek" && peran !== "orangtua") {
+    if ($("rekapFilterKelas") && peran !== "kepsek" && peran !== "orangtua") {
       renderDashboard();
-      renderTugas();
-      renderPengumpulanKpi();
-      renderPengumpulan();
-      renderKuis();
-      renderHasilOtomatis();
-      renderManual();
       renderRekap();
       renderAnalisis();
     }
@@ -1495,14 +1454,6 @@
     });
     $("sidebarOverlay").addEventListener("click", closeSidebar);
 
-    ["tugasSearch", "tugasFilterKelas", "tugasFilterMapel", "tugasFilterStatus"].forEach(function (id) {
-      if (!$(id)) return;
-      $(id).addEventListener("input", renderTugas);
-      $(id).addEventListener("change", renderTugas);
-    });
-    ["kumpulFilterKelas", "kumpulFilterTugas", "kumpulFilterStatus"].forEach(function (id) {
-      if ($(id)) $(id).addEventListener("change", renderPengumpulan);
-    });
     ["rekapFilterKelas", "rekapFilterMapel", "rekapSearch"].forEach(function (id) {
       if (!$(id)) return;
       $(id).addEventListener("input", renderRekap);
@@ -1572,70 +1523,6 @@
         Modul3.pilih(id);
         showPage("detail-siswa");
       }
-      if (type === "detail-tugas") openDetailTugas(id);
-      if (type === "detail-kumpul") openDetailKumpul(id);
-      if (type === "terima") {
-        if (!boleh("terima-kumpul")) {
-          showToast("Mode Demo: penerimaan pengumpulan hanya untuk guru mapel.");
-          return;
-        }
-        tandaiDiterima(id);
-      }
-      if (type === "lihat-hasil") {
-        renderHasilOtomatis();
-        showToast("Menampilkan contoh hasil penilaian otomatis.");
-      }
-      if (type === "isi-nilai") {
-        if (modeIzin("isi-nilai") === "koreksi") {
-          showToast("Mode Demo: admin mengajukan koreksi nilai. Perubahan harus ditinjau guru mapel. Data tidak disimpan.");
-          return;
-        }
-        if (!boleh("isi-nilai")) {
-          showToast("Mode Demo: mengubah nilai tidak tersedia untuk role ini.");
-          return;
-        }
-        const item = D.penilaianManual.find(function (x) {
-          return x.id === id;
-        });
-        fillManualForm(item);
-        switchTab("manual");
-      }
-    });
-
-    if ($("formBuatTugas")) $("formBuatTugas").addEventListener("submit", function (e) {
-      e.preventDefault();
-      if (!boleh("buat-tugas")) {
-        showToast("Mode Demo: membuat tugas hanya untuk guru mapel.");
-        return;
-      }
-      bootstrap.Modal.getInstance($("modalBuatTugas")).hide();
-      $("formBuatTugas").reset();
-      showToast("Mode demonstrasi: data tidak disimpan.");
-    });
-
-    if ($("formManual")) $("formManual").addEventListener("submit", function (e) {
-      e.preventDefault();
-      if (modeIzin("simpan-nilai") === "koreksi") {
-        showToast("Mode Demo: koreksi nilai admin dicatat untuk ditinjau. Data tidak disimpan permanen.");
-        return;
-      }
-      if (!boleh("simpan-nilai")) {
-        showToast("Mode Demo: menyimpan nilai tidak tersedia untuk role ini.");
-        return;
-      }
-      const id = e.currentTarget.dataset.id;
-      if (!id) {
-        showToast("Pilih siswa dari tabel terlebih dahulu.");
-        return;
-      }
-      const item = D.penilaianManual.find(function (x) {
-        return x.id === id;
-      });
-      const nilai = $("manualNilai").value;
-      item.nilai = nilai === "" ? null : Number(nilai);
-      item.catatan = $("manualCatatan").value;
-      renderManual();
-      showToast("Mode demonstrasi: data tidak disimpan.");
     });
   }
 
@@ -1785,18 +1672,9 @@
   function init() {
     AppCharts.initDefaults();
     toastInst = new bootstrap.Toast($("appToast"), { delay: 2800 });
-    if ($("modalDetailTugas")) modalTugas = new bootstrap.Modal($("modalDetailTugas"));
-    if ($("modalDetailKumpul")) modalKumpul = new bootstrap.Modal($("modalDetailKumpul"));
-    if ($("tugasFilterKelas")) {
+    if ($("rekapFilterKelas")) {
       fillStaticSelects();
       renderDashboard();
-      renderTugas();
-      renderPengumpulanKpi();
-      renderPengumpulan();
-      renderKuis();
-      renderHasilOtomatis();
-      renderManual();
-      fillManualForm(D.penilaianManual[0]);
       renderRekap();
       renderAnalisis();
     }
